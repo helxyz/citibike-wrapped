@@ -35,11 +35,20 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: 0.01
 .hero { display: grid; gap: 18px; }
 .hero h1 { font-size: clamp(56px, 11vw, 132px); font-weight: 900; text-transform: uppercase; }
 .hero h1 span { display: block; color: var(--wrapped); font-family: var(--wrapped-face); }
+.hero .eyebrow { color: var(--lane); }
 .lane-line { height: 6px; background: repeating-linear-gradient(90deg, var(--paint) 0 46px, transparent 46px 74px); opacity: 0.85; }
 .hero-stats { display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 17px; color: var(--dust); }
 .hero-stats b { color: var(--paint); font-family: var(--display); font-size: 34px; font-weight: 800; display: block; line-height: 1; }
 .note { font-size: 13px; color: var(--dust); max-width: 70ch; }
 .note.warn { border-left: 3px solid var(--a4); padding-left: 12px; }
+
+/* "A year in motion" ticker: two identical halves slide right by one half, so the loop is seamless */
+.marquee { overflow: hidden; white-space: nowrap; border-block: 1px solid var(--seam); padding-block: 10px; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-track { display: inline-flex; animation: marquee-right 24s linear infinite; will-change: transform; }
+.marquee-track span { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 4vw, 40px); letter-spacing: 0.04em; text-transform: uppercase; color: var(--lane); white-space: pre; }
+@keyframes marquee-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
 /* Borough selector */
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -158,7 +167,9 @@ const DATA = /*__DATA__*/null;
     <header class="hero">
       <div class="eyebrow">Citi Bike trip data · ${DATA.year}</div>
       <h1>${DATA.year},<span>wrapped</span></h1>
-      <div class="lane-line" aria-hidden="true"></div>
+      <div class="marquee" role="img" aria-label="A year in motion">
+        <div class="marquee-track" aria-hidden="true">${"<span>A year in motion&nbsp;</span>".repeat(12)}</div>
+      </div>
       <div class="hero-stats">
         <div><b class="num">${int(sum("rides"))}</b>rides from ${areas.length} areas</div>
         <div><b class="num">${int(totalKm)} km</b>ridden, station to station</div>
