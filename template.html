@@ -39,7 +39,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: 0.01
 .lane-line { height: 6px; background: repeating-linear-gradient(90deg, var(--paint) 0 46px, transparent 46px 74px); opacity: 0.85; }
 .hero-stats { display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 17px; color: var(--dust); }
 .hero-stats b { color: var(--paint); font-family: var(--display); font-size: 34px; font-weight: 800; display: block; line-height: 1; }
-.note { font-size: 13px; color: var(--dust); max-width: 70ch; }
+.note { font-size: 13px; color: var(--dust); }
 .note.warn { border-left: 3px solid var(--a4); padding-left: 12px; }
 
 /* "A year in motion" ticker: two identical halves slide right by one half, so the loop is seamless */
@@ -66,7 +66,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: 0.01
 .big-stats > div { background: var(--asphalt); padding: 18px 18px 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
 .big-stats .v { font-family: var(--display); font-size: clamp(32px, 4.4vw, 48px); font-weight: 800; line-height: 1; }
 .big-stats .l { font-size: 13px; color: var(--dust); }
-.fun { font-size: 18px; max-width: 60ch; }
+.fun { font-size: 18px; }
 .fun b { font-family: var(--display); font-size: 24px; color: var(--lane); }
 
 section > h3, .block > h3 { font-size: 30px; text-transform: uppercase; margin-bottom: 14px; }
@@ -111,12 +111,97 @@ section > h3, .block > h3 { font-size: 30px; text-transform: uppercase; margin-b
 .cat .winner { font-size: 13px; color: var(--dust); }
 .cat .winner b { color: var(--paint); }
 .bars { display: grid; gap: 6px; }
-.bar-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) 88px; align-items: center; gap: 8px; font-size: 13px; }
+.bar-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) max-content; align-items: center; gap: 8px; font-size: 13px; }
+/* Crossings heat map: rows = where rides started, columns = where they ended */
+#crossings { min-width: 0; }
+.heat-scroll { overflow-x: auto; margin-top: 4px; max-width: 100%; }
+.heat { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 600px; font-variant-numeric: tabular-nums; }
+.heat th { font: 600 13px var(--body); color: var(--dust); padding: 6px 8px; white-space: nowrap; text-align: left; }
+.heat thead th { text-align: center; vertical-align: bottom; }
+.heat .corner { font: 500 11px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.heat .hdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-right: 6px; }
+.heat td { height: 58px; border-radius: 6px; text-align: center; font: 600 15px var(--body); padding: 4px 6px; }
+.heat td small { display: block; font: 500 11px var(--mono); opacity: 0.85; margin-top: 2px; }
+.heat td.stay { background: repeating-linear-gradient(135deg, var(--curb) 0 6px, var(--asphalt) 6px 9px); color: var(--dust); }
+.heat td.none { background: var(--curb); color: var(--dust); }
+.heat-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font: 12px var(--mono); color: var(--dust); margin-top: 10px; }
+.heat-legend .ramp-wrap { position: relative; display: inline-block; width: 260px; padding-bottom: 16px; margin-right: 24px; }
+.heat-legend .ramp { display: block; height: 10px; border-radius: 5px; }
+.heat-legend .ticks span { position: absolute; top: 14px; transform: translateX(-50%); white-space: nowrap; }
+.heat-legend .ticks span:first-child { transform: none; }
+.heat-legend .ticks span:last-child { transform: translateX(-100%); }
+.heat-legend .swatch-stay { display: inline-block; width: 14px; height: 10px; border-radius: 3px; vertical-align: -1px; background: repeating-linear-gradient(135deg, var(--curb) 0 4px, var(--asphalt) 4px 6px); border: 1px solid var(--seam); }
+.bars.wide .bar-row { grid-template-columns: minmax(120px, 200px) minmax(0, 1fr) max-content; }
 .bar-row .name { color: var(--dust); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar-row .track { height: 12px; }
 .bar-row .fill { height: 12px; border-radius: 0 4px 4px 0; background: var(--c); min-width: 2px; }
 .bar-row .val { font-family: var(--mono); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .bar-row.top .name, .bar-row.top .val { color: var(--paint); font-weight: 600; }
+
+/* Head-to-head charts: each category drawn in a form that fits it */
+.viz { display: grid; gap: 7px; }
+.vrow { display: grid; grid-template-columns: 88px minmax(0, 1fr) max-content; align-items: center; gap: 8px; font-size: 13px; }
+.vrow .name { color: var(--dust); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vrow .val { font-family: var(--mono); text-align: right; white-space: nowrap; }
+.vrow.top .name, .vrow.top .val { color: var(--paint); font-weight: 600; }
+.dots { display: flex; flex-wrap: nowrap; gap: 2px; align-items: center; overflow: hidden; }
+.dots i, .vkey i { display: inline-block; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.dots i.part { border-radius: 4.5px 0 0 4.5px; }
+.vkey { font: 11px var(--mono); color: var(--dust); margin-top: 4px; }
+.viz-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.battery { position: relative; height: 16px; border: 1.5px solid var(--dust); border-radius: 4px; padding: 2px; margin-right: 5px; }
+.battery::after { content: ""; position: absolute; right: -6px; top: 4px; width: 3px; height: 6px; border-radius: 0 2px 2px 0; background: var(--dust); }
+.battery .charge { display: block; height: 100%; border-radius: 2px; background: var(--c); }
+.battery .bolt { position: absolute; left: 50%; top: 50%; width: 8px; height: 12px; transform: translate(-50%, -50%); fill: var(--paint); opacity: 0.9; }
+.rings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 6px; }
+.ring { margin: 0; display: grid; justify-items: center; gap: 2px; }
+.ring svg { width: 100%; max-width: 76px; height: auto; }
+.ring figcaption { font-size: 12px; color: var(--dust); text-align: center; }
+.ring.top figcaption { color: var(--paint); font-weight: 600; }
+.thermo { display: grid; grid-template-columns: 16px minmax(0, 1fr); align-items: center; }
+.thermo .bulb { width: 16px; height: 16px; border-radius: 50%; background: var(--c); position: relative; z-index: 1; }
+.thermo .tube { height: 8px; margin-left: -3px; border: 1.5px solid var(--dust); border-left: 0; border-radius: 0 5px 5px 0; overflow: hidden; }
+.thermo .mercury { display: block; height: 100%; background: var(--c); }
+
+/* Weekly rhythm heat map: 7 days x 24 hours */
+.rhythm-scroll { overflow-x: auto; }
+.rhythm { display: grid; grid-template-columns: 34px repeat(24, minmax(11px, 1fr)); gap: 2px; min-width: 360px; }
+.rhythm .rc { aspect-ratio: 1; border-radius: 2px; max-width: 100%; }
+.rhythm .rd, .rhythm .rh { font: 10.5px var(--mono); color: var(--dust); }
+.rhythm .rd { align-self: center; }
+.rhythm .rh { white-space: nowrap; overflow: visible; }
+/* Station imbalance map */
+#flow { min-width: 0; }
+.flow-toggle { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 6px 14px; }
+.flow-toggle button { font: 600 13px var(--body); color: var(--paint); background: var(--curb); border: 1px solid var(--seam); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.flow-toggle button[aria-pressed="true"] { background: var(--plum, #820076); border-color: var(--orchid, #e792f6); }
+.flow-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.flow-map { background: var(--asphalt); border: 1px solid var(--seam); border-radius: 10px; padding: 8px; }
+.flow-map svg { width: 100%; height: auto; display: block; }
+.flow-map .land path { fill: var(--curb); stroke: var(--seam); stroke-width: 0.8; }
+.flow-lists { display: grid; gap: 18px; }
+.flow-lists h4 { margin: 0 0 6px; font: 600 12px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--dust); }
+.flow-lists h4 i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.flow-lists ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.flow-lists li { display: grid; grid-template-columns: 14px minmax(0, 1fr) max-content; gap: 6px; align-items: center; font-size: 13px; }
+.flow-lists li .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flow-lists li .v { font-family: var(--mono); color: var(--paint); }
+.flow-lists .hdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+@media (max-width: 720px) { .flow-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Station types */
+#types { min-width: 0; }
+.types-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 6px; }
+#types-chart svg { width: 100%; height: auto; display: block; }
+.types-legend { display: grid; gap: 6px; font-size: 13px; color: var(--dust); margin-top: 8px; }
+.types-legend i { display: inline-block; width: 12px; height: 4px; border-radius: 2px; margin-right: 8px; vertical-align: 3px; }
+.types-legend b { color: var(--paint); font-weight: 600; }
+.mix-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) max-content; gap: 8px; align-items: center; font-size: 13px; margin-bottom: 8px; }
+.mix-row .name { color: var(--dust); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mix-row .val { font-family: var(--mono); color: var(--dust); }
+.mix { display: flex; height: 14px; border-radius: 4px; overflow: hidden; gap: 2px; }
+.mix span { display: block; height: 100%; }
+@media (max-width: 720px) { .types-grid { grid-template-columns: minmax(0, 1fr); } }
 
 footer { border-top: 1px solid var(--seam); padding-top: 20px; display: grid; gap: 10px; font-size: 13px; color: var(--dust); }
 footer a { color: var(--paint); }
@@ -127,7 +212,7 @@ footer a { color: var(--paint); }
   .tickets { grid-template-columns: minmax(0, 1fr); }
   .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 420px) { .facts { grid-template-columns: minmax(0, 1fr); } .bar-row { grid-template-columns: 76px minmax(0, 1fr) 86px; } }
+@media (max-width: 420px) { .facts { grid-template-columns: minmax(0, 1fr); } .bar-row { grid-template-columns: 76px minmax(0, 1fr) max-content; } }
 @media (prefers-reduced-motion: no-preference) {
   .fill, .mbar { transition: width 0.5s ease, height 0.5s ease, y 0.5s ease; }
 }
@@ -148,17 +233,22 @@ const DATA = /*__DATA__*/null;
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const int = v => Math.round(v).toLocaleString("en-US");
   const pct = v => (v * 100).toFixed(1) + "%";
+  const big = v => v >= 1e6 ? (v / 1e6).toFixed(v >= 1e7 ? 1 : 2) + "M" : int(v);   // fits the stat boxes
   const hr12 = h => `${((h + 11) % 12) + 1}${h < 12 ? "am" : "pm"}`;
   const areas = [...DATA.areas].sort((a, b) => ORDER.indexOf(a.name) - ORDER.indexOf(b.name));
   const sum = k => areas.reduce((s, a) => s + a[k], 0);
   const EARTH_KM = 40075;
+  const MI = 0.621371;                                   // data is stored in km; the page shows miles
+  const mi = km => km * MI, mph = kmh => kmh * MI;
   const monthsWithData = MONTHS.filter((_, i) => areas.some(a => a.months[i] > 0));
   const partial = monthsWithData.length < 12;
 
   const fmt = {
-    rides: v => int(v), total_km: v => int(v) + " km", total_hours: v => int(v) + " h",
-    avg_km: v => v.toFixed(2) + " km", median_kmh: v => v.toFixed(1) + " km/h",
-    ebike_share: pct, member_share: pct,
+    rides: v => int(v), total_km: v => int(mi(v)) + " mi", total_hours: v => int(v) + " h",
+    avg_km: v => mi(v).toFixed(2) + " mi", median_kmh: v => mph(v).toFixed(1) + " mph",
+    ebike_share: pct, member_share: pct, night_share: pct, weekend_share: pct, explorer_share: pct,
+    rides_per_station_day: v => v.toFixed(1) + "/day",
+    winter_ratio: v => Math.round(v * 100) + "%",
   };
 
   // ---------- page shell ----------
@@ -172,7 +262,7 @@ const DATA = /*__DATA__*/null;
       </div>
       <div class="hero-stats">
         <div><b class="num">${int(sum("rides"))}</b>rides from ${areas.length} areas</div>
-        <div><b class="num">${int(totalKm)} km</b>ridden, station to station</div>
+        <div><b class="num">${int(mi(totalKm))} mi</b>ridden, station to station</div>
         <div><b class="num">${int(sum("total_hours"))}</b>hours in the saddle</div>
         <div><b class="num">${(totalKm / EARTH_KM).toFixed(totalKm / EARTH_KM < 10 ? 2 : 1)}×</b>around the Earth</div>
       </div>
@@ -182,14 +272,43 @@ const DATA = /*__DATA__*/null;
       ${areas.map(a => `<button class="tab" role="tab" id="tab-${slug(a.name)}" aria-controls="story" aria-selected="false" data-area="${esc(a.name)}" style="--c:${color(a.name)}"><span class="dot"></span>${esc(a.name)}</button>`).join("")}
     </nav>
     <section class="story" id="story" role="tabpanel" aria-live="polite"></section>
+    <section id="crossings" hidden>
+      <h3>Crossing the line</h3>
+      <p class="note" id="cross-note"></p>
+      <div class="heat-scroll"><table class="heat" id="heat"></table></div>
+      <div class="heat-legend" id="heat-legend"></div>
+    </section>
+    <section id="flow" hidden>
+      <h3>Morning drain, evening fill</h3>
+      <p class="note" id="flow-note">Each dot is a station. <b style="color:var(--paint)">Pink</b> stations lose bikes on net during <span id="flow-when">weekday mornings</span>: more rides leave than arrive, so they need restocking. <b style="color:var(--paint)">Blue</b> stations fill up and need emptying. Bigger dots mean a bigger imbalance, counted in bikes per weekday.</p>
+      <div class="flow-toggle" role="group" aria-label="Time of day">
+        <button type="button" data-mode="am" aria-pressed="true">Weekday mornings 7–10am</button>
+        <button type="button" data-mode="pm" aria-pressed="false">Weekday evenings 4–7pm</button>
+        <button type="button" data-mode="type" aria-pressed="false" id="flow-type-btn" hidden>Station type</button>
+      </div>
+      <div class="flow-grid">
+        <div class="flow-map"><svg id="flow-svg" role="img" aria-label="Map of stations coloured by net bikes leaving or arriving"></svg></div>
+        <div class="flow-lists">
+          <div><h4 id="flow-h-drain"><i style="background:rgb(255,0,191)"></i>Biggest drainers (bikes/day)</h4><ol id="flow-drain"></ol></div>
+          <div><h4 id="flow-h-fill"><i style="background:rgb(70,205,235)"></i>Biggest fillers (bikes/day)</h4><ol id="flow-fill"></ol></div>
+        </div>
+      </div>
+    </section>
+    <section id="types" hidden>
+      <h3>Homes, hubs and all-day stations</h3>
+      <p class="note">Stations sorted into three types by <b style="color:var(--paint)">when</b> rides leave them. Each station is described by the share of its weekday departures in each hour, plus its weekend share; a k-means clustering groups stations with similar shapes. Lines show each type's average weekday pattern. Switch the map above to <b style="color:var(--paint)">Station type</b> to see where each type sits.</p>
+      <div class="types-grid">
+        <div><div id="types-chart"></div><div class="types-legend" id="types-legend"></div></div>
+        <div><div class="vkey" style="margin:0 0 10px">Mix of station types</div><div id="types-mix"></div></div>
+      </div>
+    </section>
     <section id="h2h">
       <h3>Head to head</h3>
-      <p class="note">Each area wins a category by topping it. ${DATA.categories.length} categories in play.</p>
-      <div class="scoreboard" id="scoreboard"></div>
+      <p class="note">Raw totals would hand every win to the biggest borough, so each category here is per station, per ride, or a share of rides. ${DATA.categories.length} categories in play.</p>
       <div class="cats" id="cats"></div>
     </section>
     <footer>
-      <div><b style="color:var(--paint)">How this was counted.</b> Rides are counted where they started. Distances are straight lines between the start and end stations, because trip data has no route; real rides are longer. Rides under 1 minute or over 24 hours, and rides with no recorded end, are left out (${int(DATA.rides_in_files - DATA.rides_counted)} of ${int(DATA.rides_in_files)}). "Fastest" ignores rides under 5 minutes or 1 km and speeds above 32 km/h, which are almost always clock or GPS glitches. "Slowest" is the slowest ride of at least 1 km that finished within 6 hours.</div>
+      <div><b style="color:var(--paint)">How this was counted.</b> Rides are counted where they started. Distances are straight lines between the start and end stations, because trip data has no route; real rides are longer. Rides under 1 minute or over 24 hours, and rides with no recorded end, are left out (${int(DATA.rides_in_files - DATA.rides_counted)} of ${int(DATA.rides_in_files)}). "Fastest" ignores rides under 5 minutes or 0.6 miles and speeds above 20 mph, which are almost always clock or GPS glitches. "Slowest" is the slowest ride of at least 0.6 miles that finished within 6 hours. A ride "crosses" when it ends in a different borough or city from where it started.</div>
       <div>Source: <a href="https://citibikenyc.com/system-data" target="_blank" rel="noopener">Citi Bike system data</a> (public trip histories). Independent analysis; not affiliated with Lyft or Citi Bike. Generated ${esc(DATA.generated)}.</div>
     </footer>`;
 
@@ -223,6 +342,164 @@ const DATA = /*__DATA__*/null;
   function niceStep(max) { const raw = max / 4, p = 10 ** Math.floor(Math.log10(raw)); return [1, 2, 2.5, 5, 10].map(m => m * p).find(s => s >= raw); }
   function compact(v) { return v >= 1e6 ? (v / 1e6).toFixed(v % 1e6 ? 1 : 0) + "M" : v >= 1e3 ? (v / 1e3).toFixed(v % 1e3 ? 1 : 0) + "k" : String(v); }
 
+  // ---------- where rides went (trans-borough vs within-borough) ----------
+  const FLOWS = DATA.flows || [];
+  // ---------- weekly rhythm (per borough): day of week x hour heat map ----------
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const PINKS = [[0, [36, 10, 32]], [0.25, [110, 12, 90]], [0.5, [200, 0, 150]], [0.75, [255, 40, 196]], [1, [255, 210, 240]]];
+  const pinkAt = t => {
+    const i = Math.max(1, PINKS.findIndex(s => s[0] >= t)), [t0, c0] = PINKS[i - 1], [t1, c1] = PINKS[i];
+    const k = (t - t0) / (t1 - t0 || 1);
+    return `rgb(${c0.map((c, j) => Math.round(c + (c1[j] - c) * k)).join(",")})`;
+  };
+  function rhythmBlock(a) {
+    if (!a.rhythm) return "";
+    const max = Math.max(...a.rhythm.flat(), 1);
+    let peak = [0, 0];
+    a.rhythm.forEach((row, d) => row.forEach((v, h) => { if (v > a.rhythm[peak[0]][peak[1]]) peak = [d, h]; }));
+    const cells = a.rhythm.map((row, d) => `<span class="rd">${DAYS[d]}</span>` + row.map((v, h) =>
+      `<span class="rc" style="background:${pinkAt(Math.sqrt(v / max))}" title="${DAYS[d]} ${hr12(h)}: ${int(v)} rides"></span>`).join("")).join("");
+    const hours = `<span></span>` + Array.from({ length: 24 }, (_, h) => `<span class="rh">${h % 3 ? "" : hr12(h)}</span>`).join("");
+    return `<div class="block"><h3>Weekly rhythm</h3>
+      <p class="note">Rides started in each hour of the week, across ${DATA.year}. Busiest slot: <b style="color:var(--paint)">${DAYS[peak[0]]} ${hr12(peak[1])}–${hr12((peak[1] + 1) % 24)}</b> (${int(a.rhythm[peak[0]][peak[1]])} rides). Brighter means busier.</p>
+      <div class="rhythm-scroll"><div class="rhythm">${cells}${hours}</div></div></div>`;
+  }
+
+  // ---------- station imbalance map: which docks drain or fill in weekday rush hours ----------
+  function renderFlowMap() {
+    const ST = DATA.stations || [];
+    if (!ST.length) return;
+    const lats = ST.map(s => s.lat), lngs = ST.map(s => s.lng);
+    const minLat = Math.min(...lats) - 0.006, maxLat = Math.max(...lats) + 0.006;
+    const minLng = Math.min(...lngs) - 0.006, maxLng = Math.max(...lngs) + 0.006;
+    const kx = Math.cos((minLat + maxLat) / 2 * Math.PI / 180), W = 520;
+    const sc = W / ((maxLng - minLng) * kx), H = Math.round((maxLat - minLat) * sc);
+    const px = lng => ((lng - minLng) * kx * sc).toFixed(1), py = lat => ((maxLat - lat) * sc).toFixed(1);
+    const land = (DATA.outlines || []).map(poly => `<path d="M${poly.map(([x, y]) => `${px(x)},${py(y)}`).join("L")}Z"/>`).join("");
+    const DRAIN = [255, 0, 191], FILL = [70, 205, 235], MID = [90, 84, 90];
+    const mix = (a, b, t) => `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * t)).join(",")})`;
+    const label = { am: "weekday mornings, 7–10am", pm: "weekday evenings, 4–7pm" };
+    let mode = "am";
+    const hasTypes = ST.some(s => s.type);
+    const noteEl = document.getElementById("flow-note"), flowNote = noteEl.innerHTML;
+    if (hasTypes) document.getElementById("flow-type-btn").hidden = false;
+    const draw = () => {
+      if (mode === "type") {
+        const dots = ST.filter(s => s.type).map(s => `<circle cx="${px(s.lng)}" cy="${py(s.lat)}" r="3" style="fill:${tcol(s.type)}" opacity="0.9"><title>${esc(s.name)} (${esc(s.area)}): ${TYPES[s.type].label}</title></circle>`).join("");
+        document.getElementById("flow-svg").innerHTML = `<g class="land">${land}</g>${dots}`;
+        const list = arr => arr.map(s => `<li title="Net bikes leaving each weekday morning"><span class="hdot" style="--c:${color(s.area)}"></span><span class="n">${esc(s.name)}</span><span class="v">${s.am >= 0 ? "+" : "−"}${Math.abs(s.am).toFixed(1)}</span></li>`).join("");
+        noteEl.innerHTML = `Each dot is a station, coloured by its type from the clustering below: <b style="color:${tcol("home")}">homes</b> (rides leave in the morning), <b style="color:${tcol("work")}">work &amp; transit hubs</b> (rides leave in the evening) and <b style="color:var(--paint)">all-day &amp; leisure</b>. Numbers in the lists are net bikes leaving each weekday morning.`;
+        document.getElementById("flow-drain").innerHTML = list(ST.filter(s => s.type === "home").sort((a, b) => b.am - a.am).slice(0, 8));
+        document.getElementById("flow-fill").innerHTML = list(ST.filter(s => s.type === "work").sort((a, b) => a.am - b.am).slice(0, 8));
+        document.getElementById("flow-h-drain").innerHTML = `<i style="background:${tcol("home")}"></i>Strongest homes`;
+        document.getElementById("flow-h-fill").innerHTML = `<i style="background:${tcol("work")}"></i>Strongest work & transit hubs`;
+        document.querySelectorAll(".flow-toggle button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
+        return;
+      }
+      noteEl.innerHTML = flowNote;
+      document.getElementById("flow-h-drain").innerHTML = '<i style="background:rgb(255,0,191)"></i>Biggest drainers (bikes/day)';
+      document.getElementById("flow-h-fill").innerHTML = '<i style="background:rgb(70,205,235)"></i>Biggest fillers (bikes/day)';
+      const vals = ST.map(s => Math.abs(s[mode])), vmax = Math.max(...vals, 1);
+      const dots = [...ST].sort((a, b) => Math.abs(a[mode]) - Math.abs(b[mode])).map(s => {
+        const v = s[mode], t = Math.sqrt(Math.abs(v) / vmax);
+        return `<circle cx="${px(s.lng)}" cy="${py(s.lat)}" r="${(1.4 + 5.2 * t).toFixed(2)}" style="fill:${mix(MID, v >= 0 ? DRAIN : FILL, Math.min(1, t * 1.4))}"><title>${esc(s.name)} (${esc(s.area)}): ${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)} bikes per ${mode === "am" ? "morning" : "evening"} ${v >= 0 ? "leave" : "arrive"} on net</title></circle>`;
+      }).join("");
+      document.getElementById("flow-svg").innerHTML = `<g class="land">${land}</g>${dots}`;
+      const list = (arr, sign) => arr.map(s => `<li><span class="hdot" style="--c:${color(s.area)}"></span><span class="n">${esc(s.name)}</span><span class="v">${sign}${Math.abs(s[mode]).toFixed(1)}</span></li>`).join("");
+      const sorted = [...ST].sort((a, b) => b[mode] - a[mode]);
+      document.getElementById("flow-drain").innerHTML = list(sorted.slice(0, 8), "+");
+      document.getElementById("flow-fill").innerHTML = list(sorted.slice(-8).reverse(), "−");
+      document.getElementById("flow-when").textContent = label[mode];
+      document.querySelectorAll(".flow-toggle button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
+    };
+    document.getElementById("flow-svg").setAttribute("viewBox", `0 0 ${W} ${H}`);
+    document.querySelectorAll(".flow-toggle button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; draw(); }));
+    draw();
+    document.getElementById("flow").hidden = false;
+  }
+
+  // ---------- station types (k-means clusters): homes, work & transit hubs, all-day & leisure ----------
+  const TYPES = { home: { label: "Homes", sub: "rides leave in the morning", c: [255, 141, 212] },
+                  work: { label: "Work & transit hubs", sub: "rides leave in the evening", c: [70, 205, 235] },
+                  leisure: { label: "All-day & leisure", sub: "spread across the day and weekend", c: [241, 239, 230] } };
+  const tcol = t => `rgb(${TYPES[t].c.join(",")})`;
+  function renderTypes() {
+    const T = DATA.station_types;
+    if (!T || !T.profiles) return;
+    const keys = ["home", "work", "leisure"].filter(k => T.profiles[k]);
+    // 24-hour profile chart: share of a station's weekday departures in each hour
+    const W = 640, H = 220, L = 40, R = 600, top = 14, bot = 190;
+    const max = Math.max(...keys.flatMap(k => T.profiles[k].hourly));
+    const yTicks = niceTicks(0, max, 4), ymax = yTicks.at(-1);
+    const x = h => L + h / 23 * (R - L), y = v => bot - v / ymax * (bot - top);
+    let g = yTicks.map(t => `<line x1="${L}" x2="${R}" y1="${y(t)}" y2="${y(t)}" style="stroke:var(--seam)"/>${svgText(L - 6, y(t) + 4, (t * 100).toFixed(0) + "%", { anchor: "end", size: 10.5, font: "var(--mono)" })}`).join("");
+    g += [0, 3, 6, 9, 12, 15, 18, 21].map(h => svgText(x(h), H - 8, hr12(h), { anchor: "middle", size: 10.5, font: "var(--mono)" })).join("");
+    keys.forEach(k => {
+      const p = T.profiles[k].hourly, peak = p.indexOf(Math.max(...p));
+      g += `<path d="M${p.map((v, h) => `${x(h).toFixed(1)},${y(v).toFixed(1)}`).join("L")}" fill="none" style="stroke:${tcol(k)}" stroke-width="2.5" ${k === "leisure" ? 'stroke-dasharray="6 4"' : ""} stroke-linejoin="round"/>`
+        + `<circle cx="${x(peak)}" cy="${y(p[peak])}" r="4" style="fill:${tcol(k)}"/>`
+        + svgText(Math.min(x(peak) + 8, R - 4), y(p[peak]) - 8, TYPES[k].label, { anchor: x(peak) > R - 120 ? "end" : "start", size: 12, weight: 600, fill: tcol(k) });
+    });
+    const legend = keys.map(k => `<span><i style="background:${tcol(k)}"></i><b>${TYPES[k].label}</b> · ${T.profiles[k].stations} stations · ${TYPES[k].sub} · ${pct(T.profiles[k].weekend)} of rides on weekends</span>`).join("");
+    // mix of station types in each area (100% bars)
+    const mix = areas.filter(a => T.by_area[a.name]).map(a => {
+      const c = T.by_area[a.name], tot = keys.reduce((s, k) => s + (c[k] || 0), 0);
+      return `<div class="mix-row"><span class="name">${esc(a.name)}</span><span class="mix">${keys.map(k => c[k] ? `<span style="width:${(c[k] / tot * 100).toFixed(1)}%;background:${tcol(k)}" title="${esc(a.name)}: ${c[k]} ${TYPES[k].label.toLowerCase()} (${pct(c[k] / tot)})"></span>` : "").join("")}</span><span class="val">${tot} stations</span></div>`;
+    }).join("");
+    document.getElementById("types-chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Average weekday departure pattern of each station type">${g}</svg>`;
+    document.getElementById("types-legend").innerHTML = legend;
+    document.getElementById("types-mix").innerHTML = mix;
+    document.getElementById("types").hidden = false;
+  }
+
+  function renderCrossings() {
+    if (!FLOWS.length) return;
+    const from = areas.map(a => a.name);                                   // rows: where rides started
+    const to = [...from, ...[...new Set(FLOWS.map(f => f.to))].filter(n => !from.includes(n))];  // columns: where they ended
+    const cell = (f, t) => (FLOWS.find(x => x.from === f && x.to === t) || {}).rides || 0;
+    const rowTot = Object.fromEntries(from.map(f => [f, to.reduce((s, t) => s + cell(f, t), 0)]));
+    const tot = Object.values(rowTot).reduce((s, v) => s + v, 0);
+    const cross = FLOWS.filter(x => x.from !== x.to && from.includes(x.from));
+    const crossTot = cross.reduce((s, x) => s + x.rides, 0);
+    const topX = [...cross].sort((x, y) => y.rides - x.rides)[0];
+    // colour scale: crossings only (the diagonal is "stayed"). Each value's position blends its rank among
+    // all crossings with its size on a log scale, so every step gets a distinct pink yet bigger still means brighter.
+    const vals = cross.map(x => x.rides).filter(v => v > 0);
+    const vmax = Math.max(...vals), vmin = Math.min(...vals);
+    const sorted = [...vals].sort((x, y) => x - y);
+    const rank = v => (sorted.indexOf(v) + sorted.lastIndexOf(v)) / 2 / Math.max(1, sorted.length - 1);
+    const logpos = v => vmax > vmin ? Math.log(v / vmin) / Math.log(vmax / vmin) : 1;
+    const scale = v => 0.5 * rank(v) + 0.5 * logpos(v);
+    // eight pinks: deep plum -> magenta -> hot pink -> blush -> near white
+    const STOPS = [[0, [46, 10, 40]], [0.15, [90, 14, 74]], [0.3, [138, 10, 108]], [0.45, [190, 0, 140]],
+                   [0.6, [235, 0, 175]], [0.72, [255, 60, 200]], [0.86, [255, 150, 222]], [1, [255, 222, 244]]];
+    const ramp = t => {
+      const i = Math.max(1, STOPS.findIndex(s => s[0] >= t)), [t0, c0] = STOPS[i - 1], [t1, c1] = STOPS[i];
+      const k = (t - t0) / (t1 - t0 || 1);
+      return c0.map((c, j) => Math.round(c + (c1[j] - c) * k));
+    };
+    // pick whichever text colour has more contrast on this square (WCAG relative luminance)
+    const lum = c => c.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; })
+                      .reduce((s, v, j) => s + v * [0.2126, 0.7152, 0.0722][j], 0);
+    const lightText = rgb => { const L = lum(rgb); return (1.05) / (L + 0.05) > (L + 0.05) / (lum([16, 15, 15]) + 0.05); };
+    document.getElementById("cross-note").innerHTML = `<b style="color:var(--paint)">${int(crossTot)}</b> rides (${pct(crossTot / tot)}) crossed a borough or city line in ${DATA.year}${topX ? `; the busiest crossing was <b style="color:var(--paint)">${esc(topX.from)} → ${esc(topX.to)}</b> with ${int(topX.rides)} rides` : ""}. Brighter squares mean more rides. Read across a row to see where that borough's rides ended.`;
+    const head = `<thead><tr><th class="corner">From ↓ &nbsp;To →</th>${to.map(t => `<th scope="col"><span class="hdot" style="--c:${color(t)}"></span>${esc(t)}</th>`).join("")}</tr></thead>`;
+    const body = from.map(f => `<tr><th scope="row"><span class="hdot" style="--c:${color(f)}"></span>${esc(f)}</th>${to.map(t => {
+      const v = cell(f, t), share = rowTot[f] ? v / rowTot[f] : 0;
+      const tip = `${f} → ${t}: ${int(v)} rides (${pct(share)} of ${f}'s rides)`;
+      if (f === t) return `<td class="stay" title="${esc(tip)}">${big(v)}<small>stayed</small></td>`;
+      if (!v) return `<td class="none" title="${esc(tip)}">–</td>`;
+      const rgb = ramp(scale(v));
+      return `<td title="${esc(tip)}" style="background:rgb(${rgb.join(",")});color:${lightText(rgb) ? "var(--paint)" : "var(--asphalt)"}">${big(v)}<small>${share < 0.001 ? "<0.1%" : pct(share)}</small></td>`;
+    }).join("")}</tr>`).join("");
+    document.getElementById("heat").innerHTML = head + `<tbody>${body}</tbody>`;
+    const grad = STOPS.map(([t, c]) => `rgb(${c.join(",")}) ${t * 100}%`).join(", ");
+    document.getElementById("heat-legend").innerHTML = `<span class="ramp-wrap"><span class="ramp" aria-hidden="true" style="background:linear-gradient(90deg, ${grad})"></span>
+      <span class="ticks"><span style="left:0">${compact(vmin)}</span><span style="left:${scale(sorted[Math.floor(sorted.length / 2)]) * 100}%">${compact(sorted[Math.floor(sorted.length / 2)])}</span><span style="left:100%">${compact(Math.round(vmax / 1e4) * 1e4)} rides</span></span></span>
+      <span><span class="swatch-stay"></span> stayed in the same borough</span>`;
+    document.getElementById("crossings").hidden = false;
+  }
+
   function ticket(kind, label, r, metric, c) {
     if (!r) return "";
     return `<article class="ticket" style="--c:${c}">
@@ -230,7 +507,7 @@ const DATA = /*__DATA__*/null;
       <div class="metric num">${metric}</div>
       <div class="route"><div class="rail" aria-hidden="true"><i></i><span></span><i></i></div>
         <div>${esc(r.from)}</div><div>${esc(r.to)}</div></div>
-      <div class="meta num"><span>${r.km.toFixed(2)} km</span><span>${r.minutes.toFixed(1)} min</span><span>${r.kmh.toFixed(1)} km/h</span><span>${esc(r.date)}</span><span>${r.ebike ? "e-bike" : "classic bike"}</span></div>
+      <div class="meta num"><span>${mi(r.km).toFixed(2)} mi</span><span>${r.minutes.toFixed(1)} min</span><span>${mph(r.kmh).toFixed(1)} mph</span><span>${esc(r.date)}</span><span>${r.ebike ? "e-bike" : "classic bike"}</span></div>
     </article>`;
   }
 
@@ -241,19 +518,20 @@ const DATA = /*__DATA__*/null;
     document.getElementById("story").innerHTML = `
       <div class="story-head" style="--c:${c}"><span class="swatch" aria-hidden="true"></span><h2>${esc(a.name)}</h2><span class="eyebrow">${a.stations} stations</span></div>
       <div class="big-stats">
-        <div><span class="v num">${int(a.rides)}</span><span class="l">rides started here</span></div>
-        <div><span class="v num">${int(a.total_km)}</span><span class="l">km covered (${int(a.total_km * 0.621371)} mi)</span></div>
-        <div><span class="v num">${int(a.total_hours)}</span><span class="l">hours of riding</span></div>
+        <div><span class="v num">${big(a.rides)}</span><span class="l">rides started here${a.rides >= 1e6 ? ` (${int(a.rides)})` : ""}</span></div>
+        <div><span class="v num">${big(mi(a.total_km))}</span><span class="l">miles covered${mi(a.total_km) >= 1e6 ? ` (${int(mi(a.total_km))})` : ""}</span></div>
+        <div><span class="v num">${big(a.total_hours)}</span><span class="l">hours of riding${a.total_hours >= 1e6 ? ` (${int(a.total_hours)})` : ""}</span></div>
         <div><span class="v num">${pct(a.ebike_share)}</span><span class="l">of rides on an e-bike</span></div>
       </div>
       <p class="fun">Laid end to end, ${esc(a.name)}'s rides would wrap the Earth <b class="num">${laps.toFixed(laps < 10 ? 2 : 1)}</b> times. The typical ride lasted <b class="num">${a.median_min} min</b>.</p>
       <div class="block"><h3>Busiest month: ${esc(a.top_month)}</h3><div id="mchart"></div></div>
+      ${rhythmBlock(a)}
       <div class="block"><h3>Record rides</h3>
         <div class="tickets">
-          ${ticket("farthest", "Farthest ride", r.farthest, `${r.farthest?.km.toFixed(1)}<small>km</small>`, c)}
-          ${ticket("shortest", "Shortest hop", r.shortest, `${Math.round((r.shortest?.km || 0) * 1000)}<small>m</small>`, c)}
-          ${ticket("fastest", "Fastest ride", r.fastest, `${r.fastest?.kmh.toFixed(1)}<small>km/h</small>`, c)}
-          ${ticket("slowest", "Slowest ride", r.slowest, `${r.slowest?.kmh.toFixed(1)}<small>km/h</small>`, c)}
+          ${ticket("farthest", "Farthest ride", r.farthest, `${mi(r.farthest?.km || 0).toFixed(1)}<small>mi</small>`, c)}
+          ${ticket("shortest", "Shortest hop", r.shortest, `${Math.round((r.shortest?.km || 0) * 3280.84)}<small>ft</small>`, c)}
+          ${ticket("fastest", "Fastest ride", r.fastest, `${mph(r.fastest?.kmh || 0).toFixed(1)}<small>mph</small>`, c)}
+          ${ticket("slowest", "Slowest ride", r.slowest, `${mph(r.slowest?.kmh || 0).toFixed(1)}<small>mph</small>`, c)}
         </div>
       </div>
       <div class="block"><h3>Local favourites</h3>
@@ -263,7 +541,7 @@ const DATA = /*__DATA__*/null;
           <div><span class="l">Busiest day</span><span class="v">${esc(a.busiest_day)}</span><span class="s num">${int(a.busiest_day_rides)} rides</span></div>
           <div><span class="l">Rush hour</span><span class="v">${hr12(a.busiest_hour)}–${hr12((a.busiest_hour + 1) % 24)}</span><span class="s">busiest hour to start a ride</span></div>
           <div><span class="l">Members</span><span class="v num">${pct(a.member_share)}</span><span class="s">of rides by annual members</span></div>
-          <div><span class="l">Typical speed</span><span class="v num">${a.median_kmh} km/h</span><span class="s">median, station to station</span></div>
+          <div><span class="l">Typical speed</span><span class="v num">${mph(a.median_kmh).toFixed(1)} mph</span><span class="s">median, station to station</span></div>
         </div>
       </div>`;
     drawChart(a);
@@ -296,19 +574,109 @@ const DATA = /*__DATA__*/null;
   }
 
   // ---------- head to head ----------
-  const wins = DATA.wins;
-  const byWins = [...areas].sort((a, b) => wins[b.name] - wins[a.name] || b.rides - a.rides);
-  document.getElementById("scoreboard").innerHTML = byWins.map((a, i) => `
-    <div class="score ${i === 0 ? "lead" : ""}" style="--c:${color(a.name)}"><span class="w num">${wins[a.name]}</span>
-      <span class="n">${esc(a.name)}<small>${wins[a.name] === 1 ? "category" : "categories"} won</small></span></div>`).join("");
+  // ---------- head-to-head: one chart form per category, matched to what it measures ----------
+  const svgText = (x, y, txt, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.anchor || "start"}" font-size="${o.size || 12}" font-weight="${o.weight || 400}" style="fill:${o.fill || "var(--dust)"};font-family:${o.font || "var(--body)"}">${txt}</text>`;
+  const niceTicks = (lo, hi, n = 4) => {
+    const raw = (hi - lo) / n, p = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 2.5, 5, 10].map(m => m * p).find(s => s >= raw);
+    const a = Math.floor(lo / step) * step, b = Math.ceil(hi / step) * step, t = [];
+    for (let v = a; v <= b + step / 2; v += step) t.push(+v.toFixed(6));
+    return t;
+  };
+  // rows: [{name, value}] already sorted by the category
+  function dotsViz(c, unit) {            // pictogram: one dot = `unit`
+    const rows = c.ranking.map((r, i) => {
+      const n = r.value / unit, full = Math.floor(n), frac = n - full;
+      const dots = Array.from({ length: full }, () => `<i style="--c:${color(r.name)}"></i>`).join("")
+        + (frac > 0.05 ? `<i class="part" style="--c:${color(r.name)};width:${(frac * 9).toFixed(1)}px"></i>` : "");
+      return `<div class="vrow ${i === 0 ? "top" : ""}" title="${esc(r.name)}: ${fmt[c.key](r.value)}"><span class="name">${esc(r.name)}</span><span class="dots">${dots}</span><span class="val">${fmt[c.key](r.value)}</span></div>`;
+    }).join("");
+    return `<div class="viz">${rows}</div><div class="vkey"><i style="--c:var(--dust)"></i> = ${unit} rides per station per day</div>`;
+  }
+  function trackViz(c, conv, unit, digits, kind) {   // route lines (from zero) or race lanes (zoomed axis)
+    const vals = c.ranking.map(r => conv(r.value));
+    const lo = kind === "route" ? 0 : Math.min(...vals) - 0.3, hi = Math.max(...vals) * (kind === "route" ? 1.08 : 1) + (kind === "route" ? 0 : 0.3);
+    const ticks = niceTicks(lo, hi, kind === "route" ? 3 : 4), t0 = ticks[0], t1 = ticks.at(-1);
+    const L = 96, R = 262, W = 320, rowH = 30, top = 8, H = top + c.ranking.length * rowH + 22;
+    const x = v => L + (v - t0) / (t1 - t0) * (R - L);
+    let g = ticks.map(t => `<line x1="${x(t)}" x2="${x(t)}" y1="${top - 2}" y2="${H - 20}" style="stroke:var(--seam)" stroke-width="1"/>${svgText(x(t), H - 6, t.toFixed(ticks[1] - ticks[0] < 1 ? 1 : 0) + (t === t1 ? " " + unit : ""), { anchor: "middle", size: 10.5, font: "var(--mono)" })}`).join("");
+    c.ranking.forEach((r, i) => {
+      const y = top + i * rowH + rowH / 2, v = vals[i], col = color(r.name), top1 = i === 0;
+      g += svgText(0, y + 4, esc(r.name), { size: 12.5, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)" });
+      if (kind === "route") {
+        g += `<line x1="${x(0)}" x2="${x(v)}" y1="${y}" y2="${y}" style="stroke:${col}" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round"/>`
+          + `<circle cx="${x(0)}" cy="${y}" r="4.5" style="fill:var(--curb);stroke:${col}" stroke-width="2"/>`
+          + `<circle cx="${x(v)}" cy="${y}" r="5.5" style="fill:${col}"/>`;
+      } else {
+        g += `<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" style="stroke:var(--seam)" stroke-width="1" stroke-dasharray="2 4"/>`
+          + [10, 18, 26].map((d, k) => `<line x1="${x(v) - d - 6}" x2="${x(v) - d}" y1="${y + (k - 1) * 3}" y2="${y + (k - 1) * 3}" style="stroke:${col}" stroke-width="1.5" opacity="${0.8 - k * 0.25}" stroke-linecap="round"/>`).join("")
+          + `<circle cx="${x(v)}" cy="${y}" r="6" style="fill:${col}"/>`;
+      }
+      g += svgText(W, y + 4, v.toFixed(digits) + " " + unit, { anchor: "end", size: 12, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)", font: "var(--mono)" });
+    });
+    return `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(c.label)}">${g}</svg>`;
+  }
+  function batteryViz(c) {               // battery charge = e-bike share
+    return `<div class="viz">${c.ranking.map((r, i) => `<div class="vrow ${i === 0 ? "top" : ""}" title="${esc(r.name)}: ${pct(r.value)}">
+      <span class="name">${esc(r.name)}</span>
+      <span class="battery" style="--c:${color(r.name)}"><span class="charge" style="width:${(r.value * 100).toFixed(1)}%"></span><svg class="bolt" viewBox="0 0 10 16" aria-hidden="true"><path d="M6 0L0 9h4l-1 7 7-10H6z"/></svg></span>
+      <span class="val">${pct(r.value)}</span></div>`).join("")}</div>`;
+  }
+  function ringViz(c, variant) {          // rings: share of a whole; clock ticks for night, arrow tip for explorers
+    const r0 = 26, C = 2 * Math.PI * r0;
+    return `<div class="rings">${c.ranking.map((r, i) => {
+      const col = color(r.name), len = r.value * C, end = -Math.PI / 2 + r.value * 2 * Math.PI;
+      const ticks = variant === "clock" ? Array.from({ length: 24 }, (_, h) => { const a = -Math.PI / 2 + h / 24 * 2 * Math.PI;
+        return `<line x1="${36 + 33 * Math.cos(a)}" y1="${36 + 33 * Math.sin(a)}" x2="${36 + (h % 6 ? 31 : 29) * Math.cos(a)}" y2="${36 + (h % 6 ? 31 : 29) * Math.sin(a)}" style="stroke:var(--dust)" stroke-width="1" opacity="0.6"/>`; }).join("") : "";
+      const tip = variant === "arrow" ? `<circle cx="${36 + r0 * Math.cos(end)}" cy="${36 + r0 * Math.sin(end)}" r="4.5" style="fill:${col};stroke:var(--curb)" stroke-width="2"/>` : "";
+      return `<figure class="ring ${i === 0 ? "top" : ""}" title="${esc(r.name)}: ${pct(r.value)}">
+        <svg viewBox="0 0 72 72" aria-hidden="true">${ticks}<circle cx="36" cy="36" r="${r0}" fill="none" style="stroke:var(--seam)" stroke-width="7"/>
+          <circle cx="36" cy="36" r="${r0}" fill="none" style="stroke:${col}" stroke-width="7" stroke-dasharray="${len.toFixed(2)} ${C.toFixed(2)}" transform="rotate(-90 36 36)" stroke-linecap="butt"/>${tip}
+          ${svgText(36, 40, (r.value * 100).toFixed(1) + "%", { anchor: "middle", size: 12, weight: 600, fill: "var(--paint)", font: "var(--mono)" })}</svg>
+        <figcaption>${esc(r.name)}</figcaption></figure>`; }).join("")}</div>`;
+  }
+  function baselineViz(c, base, baseLabel) {   // distance from an even week
+    const vals = c.ranking.map(r => r.value), lo = Math.min(base, ...vals) - 0.02, hi = Math.max(base, ...vals) + 0.02;
+    const L = 96, R = 250, W = 320, rowH = 30, top = 26, H = top + c.ranking.length * rowH + 6;
+    const x = v => L + (v - lo) / (hi - lo) * (R - L), xb = x(base);
+    let g = `<line x1="${xb}" x2="${xb}" y1="${top - 6}" y2="${H - 4}" style="stroke:var(--paint)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>`
+      + svgText(xb, 12, `even week ${pct(base)}`, { anchor: "middle", size: 10.5, font: "var(--mono)" });
+    c.ranking.forEach((r, i) => {
+      const y = top + i * rowH + rowH / 2, col = color(r.name), d = (r.value - base) * 100, top1 = i === 0;
+      g += svgText(0, y + 4, esc(r.name), { size: 12.5, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)" })
+        + `<line x1="${xb}" x2="${x(r.value)}" y1="${y}" y2="${y}" style="stroke:${col}" stroke-width="3" stroke-linecap="round"/>`
+        + `<circle cx="${x(r.value)}" cy="${y}" r="5.5" style="fill:${col}"/>`
+        + svgText(W, y + 4, `${pct(r.value)} ${d >= 0 ? "+" : "−"}${Math.abs(d).toFixed(1)}`, { anchor: "end", size: 11.5, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)", font: "var(--mono)" });
+    });
+    return `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(c.label)}">${g}</svg><div class="vkey">Dashed line: ${baseLabel}. Numbers on the right: share, then points above or below it.</div>`;
+  }
+  function thermoViz(c) {                // thermometers filled to the winter/summer ratio
+    const max = Math.max(...c.ranking.map(r => r.value));
+    const scaleMax = Math.ceil(max * 10) / 10;   // round up to the next 10%
+    return `<div class="viz">${c.ranking.map((r, i) => `<div class="vrow ${i === 0 ? "top" : ""}" title="${esc(r.name)}: ${fmt[c.key](r.value)}">
+      <span class="name">${esc(r.name)}</span>
+      <span class="thermo" style="--c:${color(r.name)}"><span class="bulb"></span><span class="tube"><span class="mercury" style="width:${(r.value / scaleMax * 100).toFixed(1)}%"></span></span></span>
+      <span class="val">${fmt[c.key](r.value)}</span></div>`).join("")}</div><div class="vkey">Full tube = ${Math.round(scaleMax * 100)}% of summer riding</div>`;
+  }
+  const VIZ = {
+    rides_per_station_day: c => dotsViz(c, 10),
+    avg_km: c => trackViz(c, mi, "mi", 2, "route"),
+    median_kmh: c => trackViz(c, mph, "mph", 1, "race"),
+    ebike_share: c => batteryViz(c),
+    member_share: c => ringViz(c, ""),
+    night_share: c => ringViz(c, "clock"),
+    explorer_share: c => ringViz(c, "arrow"),
+    weekend_share: c => baselineViz(c, 2 / 7, "an even week, where 2 of 7 days are weekend"),
+    winter_ratio: c => thermoViz(c),
+  };
+
   document.getElementById("cats").innerHTML = DATA.categories.map(c => {
     const max = Math.max(...c.ranking.map(r => r.value), 1e-9);
-    return `<div class="cat"><h4>${esc(c.label)}</h4><div class="winner">Winner: <b>${esc(c.winner)}</b></div>
-      <div class="bars">${c.ranking.map((r, i) => `
+    return `<div class="cat"><h4>${esc(c.label)}</h4><div class="winner">${esc(c.desc || "")}${c.desc ? " · " : ""}Winner: <b>${esc(c.winner)}</b></div>
+      ${VIZ[c.key] ? VIZ[c.key](c) : `<div class="bars">${c.ranking.map((r, i) => `
         <div class="bar-row ${i === 0 ? "top" : ""}" title="${esc(r.name)}: ${fmt[c.key](r.value)}">
           <span class="name">${esc(r.name)}</span>
           <span class="track"><span class="fill" style="display:block;width:${(r.value / max * 100).toFixed(1)}%;--c:${color(r.name)}"></span></span>
-          <span class="val">${fmt[c.key](r.value)}</span></div>`).join("")}</div></div>`;
+          <span class="val">${fmt[c.key](r.value)}</span></div>`).join("")}</div>`}</div>`;
   }).join("");
 
   // ---------- tabs + #anchor deep links ----------
@@ -319,6 +687,9 @@ const DATA = /*__DATA__*/null;
     const tabs = [...document.querySelectorAll(".tab")], i = tabs.findIndex(t => t.getAttribute("aria-selected") === "true");
     const n = tabs.at((i + (e.key === "ArrowRight" ? 1 : -1)) % tabs.length); n.focus(); pick(n.dataset.area);
   });
+  renderCrossings();
+  renderFlowMap();
+  renderTypes();
   const fromHash = areas.find(a => "#" + slug(a.name) === location.hash);
   renderStory((fromHash || areas[0]).name);
 })();

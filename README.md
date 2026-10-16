@@ -11,8 +11,17 @@ head to head. Built from Citi Bike's public [trip histories](https://citibikenyc
 - Rides per month, with the busiest month highlighted
 - Record rides: farthest, shortest hop, fastest and slowest, with their stations
 - Local favourites: top station, top route, busiest day, rush hour, member share and typical speed
-- **Head to head:** six categories (most rides, distance, hours, longest average ride,
-  fastest typical rider, most electric), with a scoreboard of wins
+- Weekly rhythm: a day-of-week x hour heat map for each borough
+- Morning drain, evening fill: a station map of net bikes leaving or arriving in weekday rush hours
+  (rebalancing demand), with the biggest drainers and fillers
+- Homes, hubs and all-day stations: stations clustered (k-means, numpy) by the hour-of-day shape of
+  their weekday departures plus weekend share; shown as average profiles, a mix per borough and a map view
+- Crossing the line: a heat map of where rides started (rows) and ended (columns), so trans-borough
+  rides (e.g. Brooklyn → Manhattan) can be compared with rides that stayed in their borough
+- **Head to head:** nine fair-fight categories, so the biggest borough can't win on size alone:
+  busiest docks (rides per station per day), longest average ride, fastest typical rider, most
+  electric, most loyal (member share), night owls, weekend warriors, winter warriors (Dec–Feb rides
+  as a share of Jun–Aug) and boldest explorers (rides ending in another area)
 
 ## How it is counted
 
@@ -20,6 +29,7 @@ head to head. Built from Citi Bike's public [trip histories](https://citibikenyc
   point-in-polygon test against NYC borough boundaries (`data/borough_boundaries.geojson`,
   NYC Department of City Planning via [dwillis/nyc-maps](https://github.com/dwillis/nyc-maps)).
   Station IDs starting `JC` or `HB` are Jersey City and Hoboken.
+- Distances and speeds are shown in miles and mph (computed in km, converted for display).
 - **Distances are straight lines** between start and end stations, because trip data has no
   route. Real rides are longer.
 - Rides under 1 minute or over 24 hours, and rides with no recorded end, are excluded.

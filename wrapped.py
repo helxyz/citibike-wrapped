@@ -48,6 +48,55 @@ def station_areas(con) -> pd.DataFrame:
     return st
 
 
+def station_types(hourly: pd.DataFrame, min_rides: int, k: int = 3, seed: int = 0):
+    """Cluster stations by WHEN rides leave them (k-means, written out with numpy).
+
+    Features per station: share of its weekday departures in each hour (24 numbers that sum to 1)
+    plus its weekend share of all departures. Clusters are then named by their shape:
+    the one whose departures peak most in the weekday morning = homes, evening = workplaces,
+    the rest = leisure (midday and weekends).
+    """
+    import numpy as np
+    wk = hourly[~hourly.is_weekend].pivot_table(index="sid", columns="hr", values="n", aggfunc="sum").reindex(columns=range(24)).fillna(0)
+    we = hourly[hourly.is_weekend].groupby("sid").n.sum()
+    total = wk.sum(axis=1) + we.reindex(wk.index).fillna(0)
+    keep = total[total >= min_rides].index
+    wk = wk.loc[keep]
+    prof = wk.div(wk.sum(axis=1).replace(0, 1), axis=0).to_numpy()
+    wshare = (we.reindex(keep).fillna(0) / total.loc[keep]).to_numpy()
+    X = np.column_stack([prof, wshare])
+    rng = np.random.default_rng(seed)
+    best = None
+    for _ in range(10):                                  # several k-means++ starts, keep the tightest
+        cent = [X[rng.integers(len(X))]]
+        for _ in range(k - 1):
+            d = np.min(((X[:, None, :] - np.array(cent)[None]) ** 2).sum(-1), axis=1)
+            cent.append(X[rng.choice(len(X), p=d / d.sum())])
+        cent = np.array(cent)
+        for _ in range(100):
+            lab = ((X[:, None, :] - cent[None]) ** 2).sum(-1).argmin(1)
+            new = np.array([X[lab == j].mean(0) if (lab == j).any() else cent[j] for j in range(k)])
+            if np.allclose(new, cent):
+                break
+            cent = new
+        inertia = ((X - cent[lab]) ** 2).sum()
+        if best is None or inertia < best[0]:
+            best = (inertia, lab, cent)
+    _, lab, cent = best
+    am = cent[:, 7:10].sum(1); pm = cent[:, 16:19].sum(1)
+    home = int(np.argmax(am - pm)); work = int(np.argmax(pm - am))
+    names = {home: "home", work: "work"}
+    for j in range(k):
+        names.setdefault(j, "leisure")
+    types = pd.Series([names[j] for j in lab], index=keep)
+    profiles = {}
+    for j, nm in names.items():
+        rows = X[lab == j]
+        profiles[nm] = {"hourly": [round(float(v), 4) for v in rows[:, :24].mean(0)],
+                        "weekend": round(float(rows[:, 24].mean()), 4), "stations": int(len(rows))}
+    return types, profiles
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--year", type=int, required=True)
@@ -81,6 +130,12 @@ def main() -> None:
     tot = con.execute("SELECT * FROM w_totals").df().set_index("area")
     tot = tot[(tot.index != "Other") & (tot.rides >= 100)].sort_values("rides", ascending=False)
     speed = con.execute("SELECT * FROM w_speed").df().set_index("area")
+    fair = con.execute("SELECT * FROM w_fair").df().set_index("area")
+    flows = con.execute("SELECT * FROM w_flows ORDER BY rides DESC").df()
+    sflow = con.execute("SELECT * FROM w_station_flow").df()
+    rhythm = con.execute("SELECT * FROM w_rhythm").df()
+    n_days = con.execute("SELECT COUNT(DISTINCT CAST(started_at AS DATE)) FROM rides").fetchone()[0]
+    stypes, sprofiles = station_types(con.execute("SELECT * FROM w_station_hourly").df(), min_rides=2 * n_days)
     months = con.execute("SELECT * FROM w_months").df()
     peaks = con.execute("SELECT * FROM w_peaks").df().set_index("area")
     top_st = con.execute("SELECT * FROM w_top_station").df().set_index("area")
@@ -104,6 +159,16 @@ def main() -> None:
             "avg_km": round(float(t.avg_km), 2), "median_min": round(float(t.median_min), 1),
             "median_kmh": round(float(speed.median_kmh.get(name, float("nan"))), 1),
             "ebike_share": round(float(t.ebike_share), 4), "member_share": round(float(t.member_share), 4),
+            "rides_per_station_day": round(float(fair.rides_per_station_day[name]), 2),
+            "night_share": round(float(fair.night_share[name]), 4),
+            "weekend_share": round(float(fair.weekend_share[name]), 4),
+            "winter_ratio": round(float(fair.winter_ratio[name]), 4),
+            "explorer_share": round(float(fair.explorer_share[name]), 4),
+            # 7 x 24 grid: rows Mon..Sun, columns 0..23h
+            "rhythm": [[int(rhythm[(rhythm.area == name) & (rhythm.dow == dw) & (rhythm.hr == h)].rides.sum())
+                        for h in range(24)] for dw in range(1, 8)],
+            "within_rides": int(flows[(flows.from_area == name) & (flows.to_area == name)].rides.sum()),
+            "cross_rides": int(flows[(flows.from_area == name) & (flows.to_area != name)].rides.sum()),
             "months": [int(x) for x in m], "top_month": MONTHS[int(m.idxmax()) - 1],
             "busiest_hour": int(p.busiest_hour),
             "busiest_day": pd.Timestamp(p.busiest_day).strftime("%a %b %-d"),
@@ -113,17 +178,48 @@ def main() -> None:
             "records": rec,
         })
 
-    cats = [("rides", "Most rides", True), ("total_km", "Most distance covered", True),
-            ("total_hours", "Most hours in the saddle", True), ("avg_km", "Longest average ride", True),
-            ("median_kmh", "Fastest typical rider", True), ("ebike_share", "Most electric", True)]
+    # Every category is per station, per ride or a share, so a borough can't win just by being bigger.
+    cats = [("rides_per_station_day", "Busiest docks", "Rides per station per day"),
+            ("avg_km", "Longest average ride", "Straight-line miles per A-to-B ride"),
+            ("median_kmh", "Fastest typical rider", "Median station-to-station speed"),
+            ("ebike_share", "Most electric", "Share of rides on an e-bike"),
+            ("member_share", "Most loyal", "Share of rides by annual members"),
+            ("night_share", "Night owls", "Share of rides starting 10pm-4am"),
+            ("weekend_share", "Weekend warriors", "Share of rides on Saturday or Sunday"),
+            ("winter_ratio", "Winter warriors", "Dec-Feb rides as a share of Jun-Aug rides"),
+            ("explorer_share", "Boldest explorers", "Share of rides ending in another borough")]
     categories = []
-    for key, label, high in cats:
-        ranked = sorted(areas, key=lambda x: x[key], reverse=high)
-        categories.append({"key": key, "label": label, "winner": ranked[0]["name"],
+    import math
+    for key, label, desc in cats:
+        vals = [ar[key] for ar in areas]
+        if any(v is None or (isinstance(v, float) and math.isnan(v)) for v in vals):
+            for ar in areas:          # e.g. no summer months in the data: skip the category
+                ar[key] = None
+            continue
+        ranked = sorted(areas, key=lambda x: x[key], reverse=True)
+        categories.append({"key": key, "label": label, "desc": desc, "winner": ranked[0]["name"],
                            "ranking": [{"name": r["name"], "value": r[key]} for r in ranked]})
     wins = {ar["name"]: sum(c["winner"] == ar["name"] for c in categories) for ar in areas}
 
-    out = {"year": a.year, "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+    keep = {ar["name"] for ar in areas}
+    flow_list = [{"from": r.from_area, "to": r.to_area, "rides": int(r.rides)}
+                 for r in flows.itertuples() if r.from_area in keep]
+    stations_out = [{"name": r.name, "area": r.area, "lat": round(float(r.lat), 5), "lng": round(float(r.lng), 5),
+                     "net": round(float(r.net_day), 2), "am": round(float(r.am_net), 2), "pm": round(float(r.pm_net), 2),
+                     "type": stypes.get(r.sid)}
+                    for r in sflow.itertuples() if r.area in keep]
+    # simplified borough outlines for the station map (small enough to embed)
+    outlines = []
+    for f in json.loads(BOROUGHS.read_text())["features"]:
+        g = shape(f["geometry"]).simplify(0.0012, preserve_topology=True)
+        polys = [g] if g.geom_type == "Polygon" else list(g.geoms)
+        outlines += [[[round(x, 4), round(y, 4)] for x, y in p.exterior.coords] for p in polys if p.area > 2e-6]
+    type_counts = {}
+    for st_ in stations_out:
+        if st_["type"]:
+            type_counts.setdefault(st_["area"], {}).setdefault(st_["type"], 0)
+            type_counts[st_["area"]][st_["type"]] += 1
+    out = {"year": a.year, "flows": flow_list, "station_types": {"profiles": sprofiles, "by_area": type_counts}, "stations": stations_out, "outlines": outlines, "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
            "files": len(files), "rides_in_files": int(raw),
            "rides_counted": int(tot.rides.sum()), "areas": areas, "categories": categories, "wins": wins}
     od = Path(a.out); od.mkdir(parents=True, exist_ok=True)

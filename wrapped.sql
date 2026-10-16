@@ -5,14 +5,15 @@
 
 CREATE OR REPLACE VIEW rides AS
 WITH base AS (
-    SELECT t.rideable_type, t.member_casual, t.started_at,
+    SELECT t.rideable_type, t.member_casual, t.started_at, t.ended_at,
            t.start_station_id, t.start_station_name, t.end_station_id, t.end_station_name,
            epoch(t.ended_at - t.started_at) / 60.0              AS minutes,
            COALESCE(s.lat, t.start_lat)                         AS lat1,
            COALESCE(s.lng, t.start_lng)                         AS lng1,
            COALESCE(e.lat, t.end_lat)                           AS lat2,
            COALESCE(e.lng, t.end_lng)                           AS lng2,
-           COALESCE(s.area, 'Other')                            AS area
+           COALESCE(s.area, 'Other')                            AS area,
+           e.area                                               AS end_area
     FROM trips t
     LEFT JOIN station_area s ON s.station_id = t.start_station_id
     LEFT JOIN station_area e ON e.station_id = t.end_station_id
@@ -47,6 +48,66 @@ FROM rides GROUP BY area;
 CREATE OR REPLACE TABLE w_speed AS
 SELECT area, approx_quantile(kmh, 0.5) AS median_kmh FROM rides_speed
 WHERE minutes >= 3 GROUP BY area;
+
+-- 1b) Fair fights: per-station, per-ride and share metrics, so size alone can't win
+CREATE OR REPLACE TABLE w_fair AS
+WITH d AS (SELECT COUNT(DISTINCT CAST(started_at AS DATE)) AS n_days FROM rides)
+SELECT area,
+       COUNT(*) * 1.0 / COUNT(DISTINCT start_station_id) / ANY_VALUE(d.n_days)       AS rides_per_station_day,
+       AVG(CASE WHEN hour(started_at) >= 22 OR hour(started_at) < 4 THEN 1 ELSE 0 END) AS night_share,
+       AVG(CASE WHEN isodow(started_at) >= 6 THEN 1 ELSE 0 END)                       AS weekend_share,
+       -- winter rides (Dec-Feb) as a share of summer rides (Jun-Aug): who keeps riding in the cold
+       COUNT(*) FILTER (month(started_at) IN (12, 1, 2)) * 1.0
+         / NULLIF(COUNT(*) FILTER (month(started_at) IN (6, 7, 8)), 0)              AS winter_ratio,
+       -- rides that finish in a different area from where they started
+       AVG(CASE WHEN end_area <> area THEN 1 ELSE 0 END) FILTER (end_area IS NOT NULL) AS explorer_share
+FROM rides, d
+GROUP BY area;
+
+-- 1c) Where rides went: start area -> end area (trans-borough vs within-borough)
+CREATE OR REPLACE TABLE w_flows AS
+SELECT area AS from_area, end_area AS to_area, COUNT(*) AS rides
+FROM rides
+WHERE end_area IS NOT NULL AND area <> 'Other' AND end_area <> 'Other'
+GROUP BY ALL;
+
+-- 1d) Station imbalance: departures minus arrivals, overall and in weekday rush hours
+CREATE OR REPLACE TABLE w_station_flow AS
+WITH d AS (
+    SELECT COUNT(DISTINCT CAST(started_at AS DATE))                             AS n_days,
+           COUNT(DISTINCT CAST(started_at AS DATE)) FILTER (isodow(started_at) <= 5) AS n_weekdays
+    FROM rides
+),
+dep AS (
+    SELECT start_station_id AS sid, COUNT(*) AS dep,
+           COUNT(*) FILTER (isodow(started_at) <= 5 AND hour(started_at) BETWEEN 7 AND 9)   AS dep_am,
+           COUNT(*) FILTER (isodow(started_at) <= 5 AND hour(started_at) BETWEEN 16 AND 18) AS dep_pm,
+           arg_max(start_station_name, started_at)                                          AS name
+    FROM rides WHERE start_station_id IS NOT NULL GROUP BY 1
+),
+arr AS (
+    SELECT end_station_id AS sid, COUNT(*) AS arr,
+           COUNT(*) FILTER (isodow(ended_at) <= 5 AND hour(ended_at) BETWEEN 7 AND 9)   AS arr_am,
+           COUNT(*) FILTER (isodow(ended_at) <= 5 AND hour(ended_at) BETWEEN 16 AND 18) AS arr_pm
+    FROM rides WHERE end_station_id IS NOT NULL GROUP BY 1
+)
+SELECT dep.sid, dep.name, s.area, s.lat, s.lng,
+       dep.dep, COALESCE(arr.arr, 0) AS arr,
+       (dep.dep - COALESCE(arr.arr, 0)) * 1.0 / d.n_days                  AS net_day,
+       (dep.dep_am - COALESCE(arr.arr_am, 0)) * 1.0 / d.n_weekdays        AS am_net,   -- + = drains in the morning
+       (dep.dep_pm - COALESCE(arr.arr_pm, 0)) * 1.0 / d.n_weekdays        AS pm_net
+FROM dep LEFT JOIN arr USING (sid) JOIN station_area s ON s.station_id = dep.sid, d
+WHERE dep.dep + COALESCE(arr.arr, 0) >= d.n_days;                       -- at least ~1 ride a day
+
+-- 1d2) Departures per station by hour, split weekday / weekend (input to the station-type clustering)
+CREATE OR REPLACE TABLE w_station_hourly AS
+SELECT start_station_id AS sid, isodow(started_at) >= 6 AS is_weekend, hour(started_at) AS hr, COUNT(*) AS n
+FROM rides WHERE start_station_id IS NOT NULL GROUP BY ALL;
+
+-- 1e) Weekly rhythm: rides by day of week x hour, per area
+CREATE OR REPLACE TABLE w_rhythm AS
+SELECT area, isodow(started_at) AS dow, hour(started_at) AS hr, COUNT(*) AS rides
+FROM rides GROUP BY ALL;
 
 -- 2) When: rides by month, busiest hour and busiest day ---------------------------
 CREATE OR REPLACE TABLE w_months AS
