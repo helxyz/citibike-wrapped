@@ -1,0 +1,637 @@
+{
+ "year": 2025,
+ "generated": "2026-10-16",
+ "files": 65,
+ "rides_in_files": 46773597,
+ "rides_counted": 46622043,
+ "areas": [
+  {
+   "name": "Manhattan",
+   "rides": 28667069,
+   "stations": 732,
+   "total_km": 56803565,
+   "total_hours": 5969095,
+   "avg_km": 2.02,
+   "median_min": 8.9,
+   "median_kmh": 10.9,
+   "ebike_share": 0.6869,
+   "member_share": 0.8318,
+   "months": [
+    1347290,
+    1309953,
+    2002300,
+    2374422,
+    2694249,
+    2948503,
+    3077526,
+    3177230,
+    3335320,
+    2970754,
+    2123259,
+    1306263
+   ],
+   "top_month": "Sep",
+   "busiest_hour": 17,
+   "busiest_day": "Thu Sep 11",
+   "busiest_day_rides": 129883,
+   "top_station": "W 21 St & 6 Ave",
+   "top_station_rides": 166550,
+   "top_route": "Norfolk St & Broome St → Henry St & Grand St",
+   "top_route_rides": 6199,
+   "records": {
+    "farthest": {
+     "from": "Riverside Dr & Broadway",
+     "to": "7 Ave & 62 St",
+     "date": "Jun 1",
+     "minutes": 239.2,
+     "km": 26.54,
+     "kmh": 6.7,
+     "ebike": true
+    },
+    "shortest": {
+     "from": "W 37 St & Broadway",
+     "to": "Broadway & W 37 St",
+     "date": "Feb 27",
+     "minutes": 33.9,
+     "km": 0.06,
+     "kmh": 0.1,
+     "ebike": true
+    },
+    "fastest": {
+     "from": "E 89 St & 3 Ave",
+     "to": "E 118 St & 3 Ave",
+     "date": "Aug 19",
+     "minutes": 5.0,
+     "km": 2.34,
+     "kmh": 27.8,
+     "ebike": true
+    },
+    "slowest": {
+     "from": "FDR Drive & E 35 St",
+     "to": "Park Ave & E 42 St",
+     "date": "Sep 11",
+     "minutes": 359.1,
+     "km": 1.01,
+     "kmh": 0.2,
+     "ebike": false
+    }
+   }
+  },
+  {
+   "name": "Brooklyn",
+   "rides": 12560518,
+   "stations": 798,
+   "total_km": 26238115,
+   "total_hours": 2545158,
+   "avg_km": 2.13,
+   "median_min": 8.9,
+   "median_kmh": 11.5,
+   "ebike_share": 0.7272,
+   "member_share": 0.817,
+   "months": [
+    567525,
+    529863,
+    850867,
+    993866,
+    1202448,
+    1323092,
+    1393097,
+    1427432,
+    1443080,
+    1301854,
+    955063,
+    572331
+   ],
+   "top_month": "Sep",
+   "busiest_hour": 18,
+   "busiest_day": "Sat May 17",
+   "busiest_day_rides": 61486,
+   "top_station": "Metropolitan Ave & Bedford Ave",
+   "top_station_rides": 100041,
+   "top_route": "Franklin St & Dupont St → Jackson Ave & 49 Ave",
+   "top_route_rides": 7278,
+   "records": {
+    "farthest": {
+     "from": "Broadway & Whipple St",
+     "to": "Bronx WH station",
+     "date": "Jan 15",
+     "minutes": 6.7,
+     "km": 8661.68,
+     "kmh": 77975.4,
+     "ebike": true
+    },
+    "shortest": {
+     "from": "Eastern Pkwy & Franklin Ave (SW Corner)",
+     "to": "Eastern Pkwy & Franklin Ave (NE Corner)",
+     "date": "Jan 1",
+     "minutes": 1.4,
+     "km": 0.05,
+     "kmh": 2.4,
+     "ebike": false
+    },
+    "fastest": {
+     "from": "S 5 Pl & S 5 St",
+     "to": "Kenmare St & Elizabeth St",
+     "date": "May 21",
+     "minutes": 6.7,
+     "km": 3.08,
+     "kmh": 27.4,
+     "ebike": true
+    },
+    "slowest": {
+     "from": "Union Ave & Jackson St",
+     "to": "Kent Ave & N 3 St",
+     "date": "Oct 22",
+     "minutes": 345.8,
+     "km": 1.05,
+     "kmh": 0.2,
+     "ebike": false
+    }
+   }
+  },
+  {
+   "name": "Queens",
+   "rides": 3114726,
+   "stations": 471,
+   "total_km": 5975378,
+   "total_hours": 587297,
+   "avg_km": 1.97,
+   "median_min": 7.6,
+   "median_kmh": 11.6,
+   "ebike_share": 0.687,
+   "member_share": 0.8234,
+   "months": [
+    147322,
+    134895,
+    213745,
+    240709,
+    287049,
+    326303,
+    351182,
+    358053,
+    355469,
+    316606,
+    234691,
+    148702
+   ],
+   "top_month": "Aug",
+   "busiest_hour": 17,
+   "busiest_day": "Sat Jul 26",
+   "busiest_day_rides": 14485,
+   "top_station": "Queens Plaza North & Crescent St",
+   "top_station_rides": 49621,
+   "top_route": "55 Ave & Center Blvd → Vernon Blvd & 50 Ave",
+   "top_route_rides": 8245,
+   "records": {
+    "farthest": {
+     "from": "Shea Rd & Boat Basin Pl",
+     "to": "67 St & Erik Pl",
+     "date": "Sep 13",
+     "minutes": 104.2,
+     "km": 19.78,
+     "kmh": 11.4,
+     "ebike": true
+    },
+    "shortest": {
+     "from": "Woodside Ave & 60 St",
+     "to": "61 St & Woodside Ave",
+     "date": "Jun 25",
+     "minutes": 4.4,
+     "km": 0.09,
+     "kmh": 1.2,
+     "ebike": true
+    },
+    "fastest": {
+     "from": "36 St & Queens Blvd",
+     "to": "Woodhaven Blvd & Hoffman Dr",
+     "date": "Jan 13",
+     "minutes": 11.4,
+     "km": 5.04,
+     "kmh": 26.4,
+     "ebike": true
+    },
+    "slowest": {
+     "from": "77 St & 31 Ave",
+     "to": "90 St & 32 Ave",
+     "date": "Nov 10",
+     "minutes": 357.3,
+     "km": 1.06,
+     "kmh": 0.2,
+     "ebike": false
+    }
+   }
+  },
+  {
+   "name": "Bronx",
+   "rides": 1280508,
+   "stations": 339,
+   "total_km": 2356361,
+   "total_hours": 274897,
+   "avg_km": 1.94,
+   "median_min": 7.8,
+   "median_kmh": 12.4,
+   "ebike_share": 0.8927,
+   "member_share": 0.7954,
+   "months": [
+    57620,
+    51338,
+    91672,
+    105200,
+    127926,
+    142632,
+    142897,
+    144666,
+    138569,
+    127377,
+    92934,
+    57677
+   ],
+   "top_month": "Aug",
+   "busiest_hour": 15,
+   "busiest_day": "Fri Jun 6",
+   "busiest_day_rides": 6102,
+   "top_station": "Melrose Ave & E 150 St",
+   "top_station_rides": 19013,
+   "top_route": "Paul Ave & W 205 St → Jerome Ave & Bedford Park Blvd E",
+   "top_route_rides": 805,
+   "records": {
+    "farthest": {
+     "from": "Jerome Ave & E Mosholu Pkwy S",
+     "to": "53 St & 5 Ave",
+     "date": "May 25",
+     "minutes": 94.0,
+     "km": 28.32,
+     "kmh": 18.1,
+     "ebike": true
+    },
+    "shortest": {
+     "from": "E 155 St & Courtlandt Ave",
+     "to": "E 156 St & Courtlandt Ave",
+     "date": "Jan 20",
+     "minutes": 16.7,
+     "km": 0.08,
+     "kmh": 0.3,
+     "ebike": true
+    },
+    "fastest": {
+     "from": "E 189 St & Bathgate Ave",
+     "to": "Park Ave & E 42 St",
+     "date": "Apr 25",
+     "minutes": 27.4,
+     "km": 14.06,
+     "kmh": 30.8,
+     "ebike": false
+    },
+    "slowest": {
+     "from": "Beck St & Leggett Ave",
+     "to": "Lafayette Ave & Hunts Point Ave",
+     "date": "Aug 19",
+     "minutes": 354.5,
+     "km": 1.0,
+     "kmh": 0.2,
+     "ebike": true
+    }
+   }
+  },
+  {
+   "name": "Jersey City",
+   "rides": 547051,
+   "stations": 77,
+   "total_km": 695590,
+   "total_hours": 93277,
+   "avg_km": 1.32,
+   "median_min": 6.5,
+   "median_kmh": 10.7,
+   "ebike_share": 0.6199,
+   "member_share": 0.801,
+   "months": [
+    26422,
+    26031,
+    39154,
+    43946,
+    50862,
+    53077,
+    59947,
+    61912,
+    63776,
+    55655,
+    41179,
+    25090
+   ],
+   "top_month": "Sep",
+   "busiest_hour": 17,
+   "busiest_day": "Fri Sep 26",
+   "busiest_day_rides": 2610,
+   "top_station": "Grove St PATH",
+   "top_station_rides": 45004,
+   "top_route": "McGinley Square → Bergen Ave & Sip Ave",
+   "top_route_rides": 4306,
+   "records": {
+    "farthest": {
+     "from": "West Side Ave & Stegman Pkwy",
+     "to": "Van Cortlandt Park S & Dickinson Ave",
+     "date": "Sep 13",
+     "minutes": 156.1,
+     "km": 25.93,
+     "kmh": 10.0,
+     "ebike": true
+    },
+    "shortest": {
+     "from": "Brunswick & 6th",
+     "to": "Monmouth & 6th",
+     "date": "May 25",
+     "minutes": 1.1,
+     "km": 0.14,
+     "kmh": 7.8,
+     "ebike": false
+    },
+    "fastest": {
+     "from": "Baldwin at Montgomery",
+     "to": "Exchange Pl",
+     "date": "Jul 17",
+     "minutes": 5.6,
+     "km": 2.64,
+     "kmh": 28.2,
+     "ebike": true
+    },
+    "slowest": {
+     "from": "Pershing Field",
+     "to": "Dey St",
+     "date": "Mar 19",
+     "minutes": 359.8,
+     "km": 1.39,
+     "kmh": 0.2,
+     "ebike": false
+    }
+   }
+  },
+  {
+   "name": "Hoboken",
+   "rides": 452171,
+   "stations": 33,
+   "total_km": 523623,
+   "total_hours": 64575,
+   "avg_km": 1.19,
+   "median_min": 5.6,
+   "median_kmh": 11.6,
+   "ebike_share": 0.6692,
+   "member_share": 0.7519,
+   "months": [
+    24167,
+    19219,
+    34123,
+    37587,
+    42339,
+    43659,
+    47427,
+    46089,
+    51804,
+    47931,
+    35054,
+    22772
+   ],
+   "top_month": "Sep",
+   "busiest_hour": 17,
+   "busiest_day": "Fri Sep 26",
+   "busiest_day_rides": 2149,
+   "top_station": "Hoboken Terminal - Hudson St & Hudson Pl",
+   "top_station_rides": 25889,
+   "top_route": "Hoboken Terminal - Hudson St & Hudson Pl → Hoboken Ave at Monmouth St",
+   "top_route_rides": 4559,
+   "records": {
+    "farthest": {
+     "from": "11 St & Washington St",
+     "to": "Broadway & Van Cortlandt Park S",
+     "date": "Sep 13",
+     "minutes": 90.9,
+     "km": 18.57,
+     "kmh": 12.3,
+     "ebike": true
+    },
+    "shortest": {
+     "from": "River St & 1 St",
+     "to": "River St & Newark St",
+     "date": "Sep 8",
+     "minutes": 17.5,
+     "km": 0.06,
+     "kmh": 0.2,
+     "ebike": true
+    },
+    "fastest": {
+     "from": "Columbus Park - Clinton St & 9 St",
+     "to": "Exchange Pl",
+     "date": "Jul 26",
+     "minutes": 8.5,
+     "km": 3.54,
+     "kmh": 25.1,
+     "ebike": true
+    },
+    "slowest": {
+     "from": "7 St & Monroe St",
+     "to": "Clinton St & Newark St",
+     "date": "Oct 30",
+     "minutes": 318.5,
+     "km": 1.02,
+     "kmh": 0.2,
+     "ebike": true
+    }
+   }
+  }
+ ],
+ "categories": [
+  {
+   "key": "rides",
+   "label": "Most rides",
+   "winner": "Manhattan",
+   "ranking": [
+    {
+     "name": "Manhattan",
+     "value": 28667069
+    },
+    {
+     "name": "Brooklyn",
+     "value": 12560518
+    },
+    {
+     "name": "Queens",
+     "value": 3114726
+    },
+    {
+     "name": "Bronx",
+     "value": 1280508
+    },
+    {
+     "name": "Jersey City",
+     "value": 547051
+    },
+    {
+     "name": "Hoboken",
+     "value": 452171
+    }
+   ]
+  },
+  {
+   "key": "total_km",
+   "label": "Most distance covered",
+   "winner": "Manhattan",
+   "ranking": [
+    {
+     "name": "Manhattan",
+     "value": 56803565
+    },
+    {
+     "name": "Brooklyn",
+     "value": 26238115
+    },
+    {
+     "name": "Queens",
+     "value": 5975378
+    },
+    {
+     "name": "Bronx",
+     "value": 2356361
+    },
+    {
+     "name": "Jersey City",
+     "value": 695590
+    },
+    {
+     "name": "Hoboken",
+     "value": 523623
+    }
+   ]
+  },
+  {
+   "key": "total_hours",
+   "label": "Most hours in the saddle",
+   "winner": "Manhattan",
+   "ranking": [
+    {
+     "name": "Manhattan",
+     "value": 5969095
+    },
+    {
+     "name": "Brooklyn",
+     "value": 2545158
+    },
+    {
+     "name": "Queens",
+     "value": 587297
+    },
+    {
+     "name": "Bronx",
+     "value": 274897
+    },
+    {
+     "name": "Jersey City",
+     "value": 93277
+    },
+    {
+     "name": "Hoboken",
+     "value": 64575
+    }
+   ]
+  },
+  {
+   "key": "avg_km",
+   "label": "Longest average ride",
+   "winner": "Brooklyn",
+   "ranking": [
+    {
+     "name": "Brooklyn",
+     "value": 2.13
+    },
+    {
+     "name": "Manhattan",
+     "value": 2.02
+    },
+    {
+     "name": "Queens",
+     "value": 1.97
+    },
+    {
+     "name": "Bronx",
+     "value": 1.94
+    },
+    {
+     "name": "Jersey City",
+     "value": 1.32
+    },
+    {
+     "name": "Hoboken",
+     "value": 1.19
+    }
+   ]
+  },
+  {
+   "key": "median_kmh",
+   "label": "Fastest typical rider",
+   "winner": "Bronx",
+   "ranking": [
+    {
+     "name": "Bronx",
+     "value": 12.4
+    },
+    {
+     "name": "Queens",
+     "value": 11.6
+    },
+    {
+     "name": "Hoboken",
+     "value": 11.6
+    },
+    {
+     "name": "Brooklyn",
+     "value": 11.5
+    },
+    {
+     "name": "Manhattan",
+     "value": 10.9
+    },
+    {
+     "name": "Jersey City",
+     "value": 10.7
+    }
+   ]
+  },
+  {
+   "key": "ebike_share",
+   "label": "Most electric",
+   "winner": "Bronx",
+   "ranking": [
+    {
+     "name": "Bronx",
+     "value": 0.8927
+    },
+    {
+     "name": "Brooklyn",
+     "value": 0.7272
+    },
+    {
+     "name": "Queens",
+     "value": 0.687
+    },
+    {
+     "name": "Manhattan",
+     "value": 0.6869
+    },
+    {
+     "name": "Hoboken",
+     "value": 0.6692
+    },
+    {
+     "name": "Jersey City",
+     "value": 0.6199
+    }
+   ]
+  }
+ ],
+ "wins": {
+  "Manhattan": 3,
+  "Brooklyn": 1,
+  "Queens": 0,
+  "Bronx": 2,
+  "Jersey City": 0,
+  "Hoboken": 0
+ }
+}

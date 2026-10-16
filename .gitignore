@@ -1,0 +1,5 @@
+# Trip files are far too big for GitHub; keep them outside this folder
+*.csv
+*.zip
+__pycache__/
+.DS_Store

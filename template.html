@@ -1,0 +1,312 @@
+<title>Borough Bike Wrapped</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a night street. Asphalt ground, lane-paint type, each borough a painted lane;
+   one story per borough, then a head-to-head scoreboard. Single dark look by design. */
+:root {
+  color-scheme: dark;
+  --asphalt: #1c1f1e;      /* page ground */
+  --curb: #252927;         /* raised surfaces */
+  --seam: #3a403d;         /* rules, grid */
+  --paint: #f1efe6;        /* lane-marking white: primary text */
+  --dust: #a7ada8;         /* secondary text */
+  --lane: #4fbf86;         /* bike-lane green: UI accent only (focus, active tab) */
+  --wrapped: #FF00BF;      /* the "Wrapped" headline word */
+  --a1: #3987e5; --a2: #d95926; --a3: #199e70; --a4: #c98500; --a5: #d55181; --a6: #008300;
+  --display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  /* Rebel Sans is licensed, not bundled: used only where the viewer already has it installed */
+  --wrapped-face: "Rebel Sans", "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--asphalt); color: var(--paint); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 56px; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: 0.01em; text-wrap: balance; margin: 0; line-height: 0.95; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dust); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Hero: the year as painted road text, with a dashed lane line under it */
+.hero { display: grid; gap: 18px; }
+.hero h1 { font-size: clamp(56px, 11vw, 132px); font-weight: 900; text-transform: uppercase; }
+.hero h1 span { display: block; color: var(--wrapped); font-family: var(--wrapped-face); }
+.lane-line { height: 6px; background: repeating-linear-gradient(90deg, var(--paint) 0 46px, transparent 46px 74px); opacity: 0.85; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 17px; color: var(--dust); }
+.hero-stats b { color: var(--paint); font-family: var(--display); font-size: 34px; font-weight: 800; display: block; line-height: 1; }
+.note { font-size: 13px; color: var(--dust); max-width: 70ch; }
+.note.warn { border-left: 3px solid var(--a4); padding-left: 12px; }
+
+/* Borough selector */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab { font: 600 15px var(--body); color: var(--paint); background: var(--curb); border: 1px solid var(--seam); border-radius: 999px; padding: 8px 16px 8px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.tab .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.tab[aria-selected="true"] { border-color: var(--paint); background: #2f3431; }
+.tab:focus-visible, button:focus-visible { outline: 2px solid var(--lane); outline-offset: 2px; }
+
+/* Story */
+.story { display: grid; gap: 36px; }
+.story-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+.story-head h2 { font-size: clamp(44px, 8vw, 84px); text-transform: uppercase; color: var(--paint); }
+.story-head .swatch { width: 18px; height: 18px; border-radius: 4px; background: var(--c); align-self: center; }
+.big-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; background: var(--seam); border: 1px solid var(--seam); border-radius: 10px; overflow: hidden; }
+.big-stats > div { background: var(--asphalt); padding: 18px 18px 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.big-stats .v { font-family: var(--display); font-size: clamp(32px, 4.4vw, 48px); font-weight: 800; line-height: 1; }
+.big-stats .l { font-size: 13px; color: var(--dust); }
+.fun { font-size: 18px; max-width: 60ch; }
+.fun b { font-family: var(--display); font-size: 24px; color: var(--lane); }
+
+section > h3, .block > h3 { font-size: 30px; text-transform: uppercase; margin-bottom: 14px; }
+.block { display: grid; gap: 4px; }
+
+/* Month chart */
+.chart-box { position: relative; background: var(--curb); border-radius: 10px; padding: 16px 12px 8px; }
+.chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tip { position: absolute; pointer-events: none; background: var(--paint); color: var(--asphalt); font: 500 13px var(--mono); padding: 4px 8px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -100%); }
+
+/* Ride tickets */
+.tickets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ticket { background: var(--curb); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; border-top: 4px solid var(--c); min-width: 0; }
+.ticket .kind { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dust); }
+.ticket .metric { font-family: var(--display); font-size: 40px; font-weight: 800; line-height: 1; }
+.ticket .metric small { font-size: 20px; color: var(--dust); font-weight: 600; margin-left: 4px; }
+.route { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: 10px; font-size: 14px; }
+.route .rail { grid-row: 1 / span 2; display: flex; flex-direction: column; align-items: center; padding-block: 6px; }
+.route .rail i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--paint); }
+.route .rail i:last-child { background: var(--paint); }
+.route .rail span { flex: 1; width: 2px; background: repeating-linear-gradient(var(--dust) 0 4px, transparent 4px 7px); min-height: 14px; }
+.route div { overflow-wrap: anywhere; }
+.meta { font: 12px var(--mono); color: var(--dust); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+
+/* Favourites list */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--seam); }
+.facts > div { padding: 14px 16px 14px 0; border-bottom: 1px solid var(--seam); display: grid; gap: 2px; min-width: 0; }
+.facts .l { font-size: 12px; color: var(--dust); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--mono); }
+.facts .v { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.facts .s { font-size: 13px; color: var(--dust); }
+
+/* Head to head */
+.scoreboard { display: flex; flex-wrap: wrap; gap: 10px; }
+.score { display: flex; align-items: center; gap: 12px; background: var(--curb); border-radius: 10px; padding: 10px 16px 10px 12px; border-left: 6px solid var(--c); }
+.score .w { font-family: var(--display); font-size: 40px; font-weight: 900; line-height: 1; }
+.score .n { font-weight: 600; }
+.score .n small { display: block; color: var(--dust); font-weight: 400; font-size: 12px; }
+.score.lead .w { color: var(--lane); }
+.cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; margin-top: 18px; }
+.cat { background: var(--curb); border-radius: 10px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+.cat h4 { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
+.cat .winner { font-size: 13px; color: var(--dust); }
+.cat .winner b { color: var(--paint); }
+.bars { display: grid; gap: 6px; }
+.bar-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) 88px; align-items: center; gap: 8px; font-size: 13px; }
+.bar-row .name { color: var(--dust); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .track { height: 12px; }
+.bar-row .fill { height: 12px; border-radius: 0 4px 4px 0; background: var(--c); min-width: 2px; }
+.bar-row .val { font-family: var(--mono); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bar-row.top .name, .bar-row.top .val { color: var(--paint); font-weight: 600; }
+
+footer { border-top: 1px solid var(--seam); padding-top: 20px; display: grid; gap: 10px; font-size: 13px; color: var(--dust); }
+footer a { color: var(--paint); }
+.empty { padding: 40px 0; font-size: 18px; }
+
+@media (max-width: 720px) {
+  .big-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tickets { grid-template-columns: minmax(0, 1fr); }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) { .facts { grid-template-columns: minmax(0, 1fr); } .bar-row { grid-template-columns: 76px minmax(0, 1fr) 86px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .fill, .mbar { transition: width 0.5s ease, height 0.5s ease, y 0.5s ease; }
+}
+</style>
+
+<div class="wrap" id="app"><p class="empty">No data yet: run <code>python pipeline/wrapped.py</code> to fill this page.</p></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+(function () {
+  if (!DATA) return;
+  const app = document.getElementById("app");
+  const ORDER = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Jersey City", "Hoboken", "Staten Island"];
+  const COLORS = ["var(--a1)", "var(--a2)", "var(--a3)", "var(--a4)", "var(--a5)", "var(--a6)", "var(--a1)"];
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const color = n => COLORS[Math.max(0, ORDER.indexOf(n))] || "var(--a1)";   // colour follows the borough, never its rank
+  const slug = n => n.toLowerCase().replace(/[^a-z]+/g, "-");
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const int = v => Math.round(v).toLocaleString("en-US");
+  const pct = v => (v * 100).toFixed(1) + "%";
+  const hr12 = h => `${((h + 11) % 12) + 1}${h < 12 ? "am" : "pm"}`;
+  const areas = [...DATA.areas].sort((a, b) => ORDER.indexOf(a.name) - ORDER.indexOf(b.name));
+  const sum = k => areas.reduce((s, a) => s + a[k], 0);
+  const EARTH_KM = 40075;
+  const monthsWithData = MONTHS.filter((_, i) => areas.some(a => a.months[i] > 0));
+  const partial = monthsWithData.length < 12;
+
+  const fmt = {
+    rides: v => int(v), total_km: v => int(v) + " km", total_hours: v => int(v) + " h",
+    avg_km: v => v.toFixed(2) + " km", median_kmh: v => v.toFixed(1) + " km/h",
+    ebike_share: pct, member_share: pct,
+  };
+
+  // ---------- page shell ----------
+  const totalKm = sum("total_km");
+  app.innerHTML = `
+    <header class="hero">
+      <div class="eyebrow">Citi Bike trip data · ${DATA.year}</div>
+      <h1>${DATA.year},<span>wrapped</span></h1>
+      <div class="lane-line" aria-hidden="true"></div>
+      <div class="hero-stats">
+        <div><b class="num">${int(sum("rides"))}</b>rides from ${areas.length} areas</div>
+        <div><b class="num">${int(totalKm)} km</b>ridden, station to station</div>
+        <div><b class="num">${int(sum("total_hours"))}</b>hours in the saddle</div>
+        <div><b class="num">${(totalKm / EARTH_KM).toFixed(totalKm / EARTH_KM < 10 ? 2 : 1)}×</b>around the Earth</div>
+      </div>
+      ${partial ? `<p class="note warn">This edition covers ${monthsWithData.length === 1 ? monthsWithData[0] : monthsWithData[0] + "–" + monthsWithData.at(-1)} ${DATA.year} only. A full year needs all twelve monthly trip files.</p>` : ""}
+    </header>
+    <nav class="tabs" role="tablist" aria-label="Choose an area">
+      ${areas.map(a => `<button class="tab" role="tab" id="tab-${slug(a.name)}" aria-controls="story" aria-selected="false" data-area="${esc(a.name)}" style="--c:${color(a.name)}"><span class="dot"></span>${esc(a.name)}</button>`).join("")}
+    </nav>
+    <section class="story" id="story" role="tabpanel" aria-live="polite"></section>
+    <section id="h2h">
+      <h3>Head to head</h3>
+      <p class="note">Each area wins a category by topping it. ${DATA.categories.length} categories in play.</p>
+      <div class="scoreboard" id="scoreboard"></div>
+      <div class="cats" id="cats"></div>
+    </section>
+    <footer>
+      <div><b style="color:var(--paint)">How this was counted.</b> Rides are counted where they started. Distances are straight lines between the start and end stations, because trip data has no route; real rides are longer. Rides under 1 minute or over 24 hours, and rides with no recorded end, are left out (${int(DATA.rides_in_files - DATA.rides_counted)} of ${int(DATA.rides_in_files)}). "Fastest" ignores rides under 5 minutes or 1 km and speeds above 32 km/h, which are almost always clock or GPS glitches. "Slowest" is the slowest ride of at least 1 km that finished within 6 hours.</div>
+      <div>Source: <a href="https://citibikenyc.com/system-data" target="_blank" rel="noopener">Citi Bike system data</a> (public trip histories). Independent analysis; not affiliated with Lyft or Citi Bike. Generated ${esc(DATA.generated)}.</div>
+    </footer>`;
+
+  // ---------- one borough's story ----------
+  function monthChart(a, W = 640) {
+    const H = 200, padL = 36, padB = 26, padT = 22;
+    const max = Math.max(...a.months, 1);
+    const step = niceStep(max);
+    const top = Math.ceil(max / step) * step;
+    const y = v => padT + (H - padT - padB) * (1 - v / top);
+    const bw = (W - padL) / 12, gap = bw > 30 ? 4 : 2;
+    const best = a.months.indexOf(Math.max(...a.months));
+    let grid = "";
+    for (let v = 0; v <= top; v += step) {
+      grid += `<line x1="${padL}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--seam)" stroke-width="1"/>
+               <text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" font-family="IBM Plex Mono, monospace" fill="var(--dust)">${compact(v)}</text>`;
+    }
+    const bars = a.months.map((v, i) => {
+      const x = padL + i * bw + gap, w = bw - 2 * gap, yy = y(v), h = Math.max(0, y(0) - yy);
+      return `<g class="mhit" data-i="${i}" tabindex="0" role="img" aria-label="${MONTHS[i]}: ${int(v)} rides">
+        <rect x="${padL + i * bw}" y="${padT}" width="${bw}" height="${H - padT - padB}" fill="transparent"/>
+        <path class="mbar" d="${h > 0 ? roundTop(x, yy, w, h, Math.min(4, h)) : ""}" fill="${i === best ? color(a.name) : "var(--dust)"}" opacity="${i === best ? 1 : 0.55}"/>
+        <text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" fill="${i === best ? "var(--paint)" : "var(--dust)"}">${MONTHS[i]}</text>
+      </g>`;
+    }).join("");
+    const bx = padL + best * bw + bw / 2;
+    const label = `<text x="${Math.min(Math.max(bx, padL + 30), W - 30)}" y="${y(a.months[best]) - 8}" text-anchor="middle" font-size="12" font-weight="600" font-family="IBM Plex Sans, sans-serif" fill="var(--paint)">${int(a.months[best])}</text>`;
+    return `<div class="chart-box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rides per month in ${esc(a.name)}">${grid}${bars}${label}</svg><div class="tip" hidden></div></div>`;
+  }
+  function roundTop(x, y, w, h, r) { return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
+  function niceStep(max) { const raw = max / 4, p = 10 ** Math.floor(Math.log10(raw)); return [1, 2, 2.5, 5, 10].map(m => m * p).find(s => s >= raw); }
+  function compact(v) { return v >= 1e6 ? (v / 1e6).toFixed(v % 1e6 ? 1 : 0) + "M" : v >= 1e3 ? (v / 1e3).toFixed(v % 1e3 ? 1 : 0) + "k" : String(v); }
+
+  function ticket(kind, label, r, metric, c) {
+    if (!r) return "";
+    return `<article class="ticket" style="--c:${c}">
+      <div class="kind">${label}</div>
+      <div class="metric num">${metric}</div>
+      <div class="route"><div class="rail" aria-hidden="true"><i></i><span></span><i></i></div>
+        <div>${esc(r.from)}</div><div>${esc(r.to)}</div></div>
+      <div class="meta num"><span>${r.km.toFixed(2)} km</span><span>${r.minutes.toFixed(1)} min</span><span>${r.kmh.toFixed(1)} km/h</span><span>${esc(r.date)}</span><span>${r.ebike ? "e-bike" : "classic bike"}</span></div>
+    </article>`;
+  }
+
+  function renderStory(name) {
+    const a = areas.find(x => x.name === name) || areas[0];
+    const c = color(a.name), r = a.records || {};
+    const laps = a.total_km / EARTH_KM;
+    document.getElementById("story").innerHTML = `
+      <div class="story-head" style="--c:${c}"><span class="swatch" aria-hidden="true"></span><h2>${esc(a.name)}</h2><span class="eyebrow">${a.stations} stations</span></div>
+      <div class="big-stats">
+        <div><span class="v num">${int(a.rides)}</span><span class="l">rides started here</span></div>
+        <div><span class="v num">${int(a.total_km)}</span><span class="l">km covered (${int(a.total_km * 0.621371)} mi)</span></div>
+        <div><span class="v num">${int(a.total_hours)}</span><span class="l">hours of riding</span></div>
+        <div><span class="v num">${pct(a.ebike_share)}</span><span class="l">of rides on an e-bike</span></div>
+      </div>
+      <p class="fun">Laid end to end, ${esc(a.name)}'s rides would wrap the Earth <b class="num">${laps.toFixed(laps < 10 ? 2 : 1)}</b> times. The typical ride lasted <b class="num">${a.median_min} min</b>.</p>
+      <div class="block"><h3>Busiest month: ${esc(a.top_month)}</h3><div id="mchart"></div></div>
+      <div class="block"><h3>Record rides</h3>
+        <div class="tickets">
+          ${ticket("farthest", "Farthest ride", r.farthest, `${r.farthest?.km.toFixed(1)}<small>km</small>`, c)}
+          ${ticket("shortest", "Shortest hop", r.shortest, `${Math.round((r.shortest?.km || 0) * 1000)}<small>m</small>`, c)}
+          ${ticket("fastest", "Fastest ride", r.fastest, `${r.fastest?.kmh.toFixed(1)}<small>km/h</small>`, c)}
+          ${ticket("slowest", "Slowest ride", r.slowest, `${r.slowest?.kmh.toFixed(1)}<small>km/h</small>`, c)}
+        </div>
+      </div>
+      <div class="block"><h3>Local favourites</h3>
+        <div class="facts">
+          <div><span class="l">Top station</span><span class="v">${esc(a.top_station)}</span><span class="s num">${int(a.top_station_rides)} rides started here</span></div>
+          <div><span class="l">Top route</span><span class="v">${esc(a.top_route)}</span><span class="s num">${int(a.top_route_rides)} rides</span></div>
+          <div><span class="l">Busiest day</span><span class="v">${esc(a.busiest_day)}</span><span class="s num">${int(a.busiest_day_rides)} rides</span></div>
+          <div><span class="l">Rush hour</span><span class="v">${hr12(a.busiest_hour)}–${hr12((a.busiest_hour + 1) % 24)}</span><span class="s">busiest hour to start a ride</span></div>
+          <div><span class="l">Members</span><span class="v num">${pct(a.member_share)}</span><span class="s">of rides by annual members</span></div>
+          <div><span class="l">Typical speed</span><span class="v num">${a.median_kmh} km/h</span><span class="s">median, station to station</span></div>
+        </div>
+      </div>`;
+    drawChart(a);
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.area === a.name ? "true" : "false"));
+  }
+
+  let current = null;
+  function drawChart(a) {
+    current = a;
+    const host = document.getElementById("mchart");
+    const w = Math.max(300, Math.min(900, (host.clientWidth || 640) - 24));
+    host.innerHTML = monthChart(a, w);
+    wireTips(a);
+  }
+  let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => current && drawChart(current), 150); });
+  function wireTips(a) {
+    const box = document.querySelector("#story .chart-box"), tip = box.querySelector(".tip"), svg = box.querySelector("svg");
+    const show = g => {
+      const i = +g.dataset.i, rect = g.querySelector(".mbar").getBoundingClientRect(), b = box.getBoundingClientRect();
+      const hit = g.querySelector("rect").getBoundingClientRect();
+      tip.textContent = `${MONTHS[i]} · ${int(a.months[i])} rides`;
+      tip.style.left = (hit.left - b.left + hit.width / 2) + "px";
+      tip.style.top = ((rect.height ? rect.top : hit.bottom - 20) - b.top - 6) + "px";
+      tip.hidden = false;
+    };
+    svg.querySelectorAll(".mhit").forEach(g => {
+      g.addEventListener("pointerenter", () => show(g)); g.addEventListener("focus", () => show(g));
+      g.addEventListener("pointerleave", () => tip.hidden = true); g.addEventListener("blur", () => tip.hidden = true);
+    });
+  }
+
+  // ---------- head to head ----------
+  const wins = DATA.wins;
+  const byWins = [...areas].sort((a, b) => wins[b.name] - wins[a.name] || b.rides - a.rides);
+  document.getElementById("scoreboard").innerHTML = byWins.map((a, i) => `
+    <div class="score ${i === 0 ? "lead" : ""}" style="--c:${color(a.name)}"><span class="w num">${wins[a.name]}</span>
+      <span class="n">${esc(a.name)}<small>${wins[a.name] === 1 ? "category" : "categories"} won</small></span></div>`).join("");
+  document.getElementById("cats").innerHTML = DATA.categories.map(c => {
+    const max = Math.max(...c.ranking.map(r => r.value), 1e-9);
+    return `<div class="cat"><h4>${esc(c.label)}</h4><div class="winner">Winner: <b>${esc(c.winner)}</b></div>
+      <div class="bars">${c.ranking.map((r, i) => `
+        <div class="bar-row ${i === 0 ? "top" : ""}" title="${esc(r.name)}: ${fmt[c.key](r.value)}">
+          <span class="name">${esc(r.name)}</span>
+          <span class="track"><span class="fill" style="display:block;width:${(r.value / max * 100).toFixed(1)}%;--c:${color(r.name)}"></span></span>
+          <span class="val">${fmt[c.key](r.value)}</span></div>`).join("")}</div></div>`;
+  }).join("");
+
+  // ---------- tabs + #anchor deep links ----------
+  const pick = name => { renderStory(name); try { history.replaceState(null, "", "#" + slug(name)); } catch (e) {} };
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => pick(t.dataset.area)));
+  document.querySelector(".tabs").addEventListener("keydown", e => {
+    if (!["ArrowRight", "ArrowLeft"].includes(e.key)) return;
+    const tabs = [...document.querySelectorAll(".tab")], i = tabs.findIndex(t => t.getAttribute("aria-selected") === "true");
+    const n = tabs.at((i + (e.key === "ArrowRight" ? 1 : -1)) % tabs.length); n.focus(); pick(n.dataset.area);
+  });
+  const fromHash = areas.find(a => "#" + slug(a.name) === location.hash);
+  renderStory((fromHash || areas[0]).name);
+})();
+</script>
