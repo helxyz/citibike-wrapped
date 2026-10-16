@@ -51,11 +51,11 @@
     "shortest": {
      "from": "W 37 St & Broadway",
      "to": "Broadway & W 37 St",
-     "date": "Feb 27",
-     "minutes": 33.9,
+     "date": "Feb 12",
+     "minutes": 6.6,
      "km": 0.06,
-     "kmh": 0.1,
-     "ebike": true
+     "kmh": 0.6,
+     "ebike": false
     },
     "fastest": {
      "from": "E 89 St & 3 Ave",
@@ -121,13 +121,13 @@
      "ebike": true
     },
     "shortest": {
-     "from": "Eastern Pkwy & Franklin Ave (SW Corner)",
-     "to": "Eastern Pkwy & Franklin Ave (NE Corner)",
-     "date": "Jan 1",
-     "minutes": 1.4,
+     "from": "Eastern Pkwy & Franklin Ave (NE Corner)",
+     "to": "Eastern Pkwy & Franklin Ave (SW Corner)",
+     "date": "Jan 5",
+     "minutes": 29.6,
      "km": 0.05,
-     "kmh": 2.4,
-     "ebike": false
+     "kmh": 0.1,
+     "ebike": true
     },
     "fastest": {
      "from": "S 5 Pl & S 5 St",
@@ -187,18 +187,18 @@
      "from": "Shea Rd & Boat Basin Pl",
      "to": "67 St & Erik Pl",
      "date": "Sep 13",
-     "minutes": 104.2,
+     "minutes": 106.1,
      "km": 19.78,
-     "kmh": 11.4,
+     "kmh": 11.2,
      "ebike": true
     },
     "shortest": {
-     "from": "Woodside Ave & 60 St",
-     "to": "61 St & Woodside Ave",
-     "date": "Jun 25",
-     "minutes": 4.4,
+     "from": "61 St & Woodside Ave",
+     "to": "Woodside Ave & 60 St",
+     "date": "Jun 29",
+     "minutes": 23.1,
      "km": 0.09,
-     "kmh": 1.2,
+     "kmh": 0.2,
      "ebike": true
     },
     "fastest": {
@@ -267,10 +267,10 @@
     "shortest": {
      "from": "E 155 St & Courtlandt Ave",
      "to": "E 156 St & Courtlandt Ave",
-     "date": "Jan 20",
-     "minutes": 16.7,
+     "date": "Jan 5",
+     "minutes": 10.7,
      "km": 0.08,
-     "kmh": 0.3,
+     "kmh": 0.4,
      "ebike": true
     },
     "fastest": {
@@ -339,11 +339,11 @@
     "shortest": {
      "from": "Brunswick & 6th",
      "to": "Monmouth & 6th",
-     "date": "May 25",
-     "minutes": 1.1,
+     "date": "Feb 18",
+     "minutes": 7.7,
      "km": 0.14,
-     "kmh": 7.8,
-     "ebike": false
+     "kmh": 1.1,
+     "ebike": true
     },
     "fastest": {
      "from": "Baldwin at Montgomery",

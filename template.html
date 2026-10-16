@@ -8,14 +8,16 @@
    one story per borough, then a head-to-head scoreboard. Single dark look by design. */
 :root {
   color-scheme: dark;
-  --asphalt: #1c1f1e;      /* page ground */
+  --asphalt: #100f0f;      /* page ground */
   --curb: #252927;         /* raised surfaces */
-  --seam: #3a403d;         /* rules, grid */
+  --seam: #464046;         /* rules, grid */
   --paint: #f1efe6;        /* lane-marking white: primary text */
   --dust: #a7ada8;         /* secondary text */
-  --lane: #4fbf86;         /* bike-lane green: UI accent only (focus, active tab) */
+  --lane: #ff8dd4;         /* bike-lane green: UI accent only (focus, active tab) */
+  --orchid: #e792f6;       /* secondary accent */
+  --plum: #820076;         /* backgrounds only, with white text on top */
   --wrapped: #FF00BF;      /* the "Wrapped" headline word */
-  --a1: #3987e5; --a2: #d95926; --a3: #199e70; --a4: #c98500; --a5: #d55181; --a6: #008300;
+    --a1: #3d8be8; --a2: #c8662e; --a3: #1aa38a; --a4: #b38600; --a5: #BF1932; --a6: #8f7ff0;
   --display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", sans-serif;
   --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   /* Rebel Sans is licensed, not bundled: used only where the viewer already has it installed */
@@ -43,7 +45,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: 0.01
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
 .tab { font: 600 15px var(--body); color: var(--paint); background: var(--curb); border: 1px solid var(--seam); border-radius: 999px; padding: 8px 16px 8px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
 .tab .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
-.tab[aria-selected="true"] { border-color: var(--paint); background: #2f3431; }
+.tab[aria-selected="true"] { border-color: var(--orchid); background: var(--plum); }
 .tab:focus-visible, button:focus-visible { outline: 2px solid var(--lane); outline-offset: 2px; }
 
 /* Story */
