@@ -279,7 +279,7 @@ const DATA = /*__DATA__*/null;
       <div class="heat-legend" id="heat-legend"></div>
     </section>
     <section id="flow" hidden>
-      <h3>Morning drain, evening fill</h3>
+      <h3>Workin' Nine to Five</h3>
       <p class="note" id="flow-note">Each dot is a station. <b style="color:var(--paint)">Pink</b> stations lose bikes on net during <span id="flow-when">weekday mornings</span>: more rides leave than arrive, so they need restocking. <b style="color:var(--paint)">Blue</b> stations fill up and need emptying. Bigger dots mean a bigger imbalance, counted in bikes per weekday.</p>
       <div class="flow-toggle" role="group" aria-label="Time of day">
         <button type="button" data-mode="am" aria-pressed="true">Weekday mornings 7–10am</button>
@@ -295,7 +295,7 @@ const DATA = /*__DATA__*/null;
       </div>
     </section>
     <section id="types" hidden>
-      <h3>Homes, hubs and all-day stations</h3>
+      <h3>Homes, hubs & the lack of third spaces</h3>
       <p class="note">Stations sorted into three types by <b style="color:var(--paint)">when</b> rides leave them. Each station is described by the share of its weekday departures in each hour, plus its weekend share; a k-means clustering groups stations with similar shapes. Lines show each type's average weekday pattern. Switch the map above to <b style="color:var(--paint)">Station type</b> to see where each type sits.</p>
       <div class="types-grid">
         <div><div id="types-chart"></div><div class="types-legend" id="types-legend"></div></div>
@@ -303,7 +303,7 @@ const DATA = /*__DATA__*/null;
       </div>
     </section>
     <section id="h2h">
-      <h3>Head to head</h3>
+      <h3>Battle of the Boroughs</h3>
       <p class="note">Raw totals would hand every win to the biggest borough, so each category here is per station, per ride, or a share of rides. ${DATA.categories.length} categories in play.</p>
       <div class="cats" id="cats"></div>
     </section>
