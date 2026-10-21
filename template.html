@@ -232,6 +232,11 @@ footer a { color: var(--paint); }
 @media (prefers-reduced-motion: no-preference) {
   .fill, .mbar { transition: width 0.5s ease, height 0.5s ease, y 0.5s ease; }
 }
+.crow { display: inline-block; width: 0.8em; height: 0.5em; margin-left: 0.2em; vertical-align: baseline; position: relative; top: -0.55em; color: var(--lane); cursor: help; }
+.crow svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.crow-note { font-size: 12.5px; color: var(--dust); margin: 4px 0 0; }
+.crow-note .crow { top: -0.1em; margin: 0 0.4em 0 0; }
+.hero-note { margin-top: 14px; }
 </style>
 
 <div class="wrap" id="app"><p class="empty">No data yet: run <code>python pipeline/wrapped.py</code> to fill this page.</p></div>
@@ -256,6 +261,8 @@ const DATA = /*__DATA__*/null;
   const EARTH_KM = 40075;
   const MI = 0.621371;                                   // data is stored in km; the page shows miles
   const mi = km => km * MI, mph = kmh => kmh * MI;
+  // small bird = "as the crow flies": marks figures based on straight-line distance
+  const CROW = `<span class="crow" title="As the crow flies: straight-line distance between docks" aria-label="straight-line estimate"><svg viewBox="0 0 16 9" aria-hidden="true"><path d="M1 6.5 Q4.5 0.5 8 5 Q11.5 0.5 15 6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
   const monthsWithData = MONTHS.filter((_, i) => areas.some(a => a.months[i] > 0));
   const partial = monthsWithData.length < 12;
 
@@ -278,10 +285,11 @@ const DATA = /*__DATA__*/null;
       </div>
       <div class="hero-stats">
         <div><b class="num">${int(sum("rides"))}</b>rides from ${areas.length} areas</div>
-        <div><b class="num">${int(mi(totalKm))} mi</b>covered, station to station</div>
+        <div><b class="num">${int(mi(totalKm))} mi${CROW}</b>covered, station to station</div>
         <div><b class="num">${int(sum("total_hours"))}</b>hours in the saddle</div>
-        <div><b class="num">${(totalKm / EARTH_KM).toFixed(totalKm / EARTH_KM < 10 ? 2 : 1)}×</b>around the Earth</div>
+        <div><b class="num">${(totalKm / EARTH_KM).toFixed(totalKm / EARTH_KM < 10 ? 2 : 1)}×</b>around the Earth${CROW}</div>
       </div>
+      <p class="crow-note hero-note">${CROW}As the crow flies: distances and speeds use the straight line between the start and end docks, since trip data has no route. Real rides are longer = higher real distances &amp; speeds.</p>
       ${partial ? `<p class="note warn">This edition covers ${monthsWithData.length === 1 ? monthsWithData[0] : monthsWithData[0] + "–" + monthsWithData.at(-1)} ${DATA.year} only. A full year needs all twelve monthly trip files.</p>` : ""}
     </header>
     <nav class="tabs" role="tablist" aria-label="Choose an area">
@@ -646,7 +654,7 @@ const DATA = /*__DATA__*/null;
     const lum = c => c.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; })
                       .reduce((s, v, j) => s + v * [0.2126, 0.7152, 0.0722][j], 0);
     const lightText = rgb => { const L = lum(rgb); return (1.05) / (L + 0.05) > (L + 0.05) / (lum([16, 15, 15]) + 0.05); };
-    document.getElementById("cross-note").innerHTML = `<b style="color:var(--paint)">${int(crossTot)}</b> rides (${pct(crossTot / tot)}) crossed a borough or city line in ${DATA.year}${topX ? `; the busiest crossing was <b style="color:var(--paint)">${esc(topX.from)} → ${esc(topX.to)}</b> with ${int(topX.rides)} rides` : ""}. Brighter squares mean more rides. Read across a row to see where that borough's rides ended.`;
+    document.getElementById("cross-note").innerHTML = `<b style="color:var(--paint)">${int(crossTot)}</b> rides (${pct(crossTot / tot)}) crossed a borough or city line in ${DATA.year}${topX ? `; the busiest crossing was <b style="color:var(--paint)">${esc(topX.from)} → ${esc(topX.to)}</b> with ${int(topX.rides)} rides` : ""}. Brighter squares mean more rides. Percentages are a share of the row: of all rides that started in that borough, how many ended in each column.`;
     const head = `<thead><tr><th class="corner">From ↓ &nbsp;To →</th>${to.map(t => `<th scope="col"><span class="hdot" style="--c:${color(t)}"></span>${esc(t)}</th>`).join("")}</tr></thead>`;
     const body = from.map(f => `<tr><th scope="row"><span class="hdot" style="--c:${color(f)}"></span>${esc(f)}</th>${to.map(t => {
       const v = cell(f, t), share = rowTot[f] ? v / rowTot[f] : 0;
@@ -683,19 +691,19 @@ const DATA = /*__DATA__*/null;
       <div class="story-head" style="--c:${c}"><span class="swatch" aria-hidden="true"></span><h2>${esc(a.name)}</h2><span class="eyebrow">${a.stations} stations</span></div>
       <div class="big-stats">
         <div><span class="v num">${big(a.rides)}</span><span class="l">rides started here${a.rides >= 1e6 ? ` (${int(a.rides)})` : ""}</span></div>
-        <div><span class="v num">${big(mi(a.total_km))}</span><span class="l">miles covered${mi(a.total_km) >= 1e6 ? ` (${int(mi(a.total_km))})` : ""}</span></div>
+        <div><span class="v num">${big(mi(a.total_km))}</span><span class="l">miles covered${CROW}${mi(a.total_km) >= 1e6 ? ` (${int(mi(a.total_km))})` : ""}</span></div>
         <div><span class="v num">${big(a.total_hours)}</span><span class="l">hours of riding${a.total_hours >= 1e6 ? ` (${int(a.total_hours)})` : ""}</span></div>
         <div><span class="v num">${pct(a.ebike_share)}</span><span class="l">of rides on an e-bike</span></div>
       </div>
-      <p class="fun">Laid end to end, ${esc(a.name)}'s rides would wrap the Earth <b class="num">${laps.toFixed(laps < 10 ? 2 : 1)}</b> times. The typical ride lasted <b class="num">${a.median_min} min</b>.</p>
+      <p class="fun">Laid end to end, ${esc(a.name)}'s rides would wrap the Earth <b class="num">${laps.toFixed(laps < 10 ? 2 : 1)}</b> times${CROW}. The typical ride lasted <b class="num">${a.median_min} min</b>.</p>
       <div class="block"><h3>Busiest month: ${esc(a.top_month)}</h3><div id="mchart"></div></div>
       ${rhythmBlock(a)}
       <div class="block"><h3>Record rides</h3>
         <div class="tickets">
-          ${ticket("farthest", "Farthest ride", r.farthest, `${mi(r.farthest?.km || 0).toFixed(1)}<small>mi</small>`, c)}
-          ${ticket("shortest", "Shortest hop", r.shortest, `${Math.round((r.shortest?.km || 0) * 3280.84)}<small>ft</small>`, c)}
-          ${ticket("fastest", "Fastest ride", r.fastest, `${mph(r.fastest?.kmh || 0).toFixed(1)}<small>mph</small>`, c)}
-          ${ticket("slowest", "Slowest ride", r.slowest, `${mph(r.slowest?.kmh || 0).toFixed(1)}<small>mph</small>`, c)}
+          ${ticket("farthest", "Farthest ride", r.farthest, `${mi(r.farthest?.km || 0).toFixed(1)}<small>mi${CROW}</small>`, c)}
+          ${ticket("shortest", "Shortest hop", r.shortest, `${Math.round((r.shortest?.km || 0) * 3280.84)}<small>ft${CROW}</small>`, c)}
+          ${ticket("fastest", "Fastest ride", r.fastest, `${mph(r.fastest?.kmh || 0).toFixed(1)}<small>mph${CROW}</small>`, c)}
+          ${ticket("slowest", "Slowest ride", r.slowest, `${mph(r.slowest?.kmh || 0).toFixed(1)}<small>mph${CROW}</small>`, c)}
         </div>
       </div>
       <div class="block"><h3>Local favourites</h3>
@@ -705,7 +713,7 @@ const DATA = /*__DATA__*/null;
           <div><span class="l">Busiest day</span><span class="v">${esc(a.busiest_day)}</span><span class="s num">${int(a.busiest_day_rides)} rides</span></div>
           <div><span class="l">Rush hour</span><span class="v">${hr12(a.busiest_hour)}–${hr12((a.busiest_hour + 1) % 24)}</span><span class="s">busiest hour to start a ride</span></div>
           <div><span class="l">Members</span><span class="v num">${pct(a.member_share)}</span><span class="s">of rides by annual members</span></div>
-          <div><span class="l">Typical speed</span><span class="v num">${mph(a.median_kmh).toFixed(1)} mph</span><span class="s">median, station to station</span></div>
+          <div><span class="l">Typical speed</span><span class="v num">${mph(a.median_kmh).toFixed(1)} mph</span><span class="s">median, station to station${CROW}</span></div>
         </div>
       </div>`;
     drawChart(a);
@@ -803,7 +811,7 @@ const DATA = /*__DATA__*/null;
     const L = 96, R = 250, W = 320, rowH = 30, top = 26, H = top + c.ranking.length * rowH + 6;
     const x = v => L + (v - lo) / (hi - lo) * (R - L), xb = x(base);
     let g = `<line x1="${xb}" x2="${xb}" y1="${top - 6}" y2="${H - 4}" style="stroke:var(--paint)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>`
-      + svgText(xb, 12, `even week ${pct(base)}`, { anchor: "middle", size: 10.5, font: "var(--mono)" });
+      + svgText(xb, 12, `no weekend effect ${pct(base)}`, { anchor: "middle", size: 10.5, font: "var(--mono)" });
     c.ranking.forEach((r, i) => {
       const y = top + i * rowH + rowH / 2, col = color(r.name), d = (r.value - base) * 100, top1 = i === 0;
       g += svgText(0, y + 4, esc(r.name), { size: 12.5, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)" })
@@ -846,7 +854,7 @@ const DATA = /*__DATA__*/null;
     explorer_share: c => ringViz(c, "arrow"),
     feeder_share: c => ringViz(c, ""),
     shadow_index: c => ratioViz(c, "random destinations at the same distance", "more trips along a single subway line than chance"),
-    weekend_share: c => baselineViz(c, 2 / 7, "an even week, where 2 of 7 days are weekend"),
+    weekend_share: c => baselineViz(c, 2 / 7, "no weekend effect. If every day were equal, 2/7 (28.6%) of rides would fall on the weekend"),
     winter_ratio: c => thermoViz(c),
   };
 

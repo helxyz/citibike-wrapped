@@ -188,14 +188,9 @@ def main() -> None:
 
     # Every category is per station, per ride or a share, so a borough can't win just by being bigger.
     cats = [("rides_per_station_day", "Busiest docks", "Rides per station per day"),
-            ("avg_km", "Longest average ride", "Straight-line miles per A-to-B ride"),
-            ("median_kmh", "Fastest typical rider", "Median station-to-station speed"),
             ("ebike_share", "Most electric", "Share of rides on an e-bike"),
             ("member_share", "Most loyal", "Share of rides by annual members"),
-            ("night_share", "Night owls", "Share of rides starting 10pm-4am"),
             ("weekend_share", "Weekend warriors", "Share of rides on Saturday or Sunday"),
-            ("winter_ratio", "Winter warriors", "Dec-Feb rides as a share of Jun-Aug rides"),
-            ("explorer_share", "Boldest explorers", "Share of rides ending in another borough"),
             ("feeder_share", "Last-mile feeders", "Share of weekday-morning rides from a dock 1/4 mile or more from rail to one within 650 ft"),
             ("shadow_index", "Subway shadow", "Rides a single subway line could also have made, vs. random destinations")]
     categories = []
