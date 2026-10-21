@@ -3,3 +3,6 @@
 *.zip
 __pycache__/
 .DS_Store
+
+# Public rail-station data used by the last-mile section (small; the trip CSVs above stay ignored)
+!data/subway_entrances.csv

@@ -18,10 +18,18 @@ head to head. Built from Citi Bike's public [trip histories](https://citibikenyc
   their weekday departures plus weekend share; shown as average profiles, a mix per borough and a map view
 - Crossing the line: a heat map of where rides started (rows) and ended (columns), so trans-borough
   rides (e.g. Brooklyn → Manhattan) can be compared with rides that stayed in their borough
-- **Head to head:** nine fair-fight categories, so the biggest borough can't win on size alone:
+- The last mile: how close docks and rides are to the subway, PATH and Hudson-Bergen light rail
+  (within 330 ft, 650 ft or ¼ mile), whether docks near rail are busier, the weekday commute
+  signature (toward rail in the morning, away in the evening) and the top "feeder" docks
+- Filling the gaps: of rides with the subway near both ends, how many would need a transfer by
+  subway (no line serves both ends), compared with what each borough's dock layout predicts;
+  Manhattan crosstown vs. uptown/downtown; and the busiest gap trips
+- **Head to head:** eleven fair-fight categories, so the biggest borough can't win on size alone:
   busiest docks (rides per station per day), longest average ride, fastest typical rider, most
   electric, most loyal (member share), night owls, weekend warriors, winter warriors (Dec–Feb rides
-  as a share of Jun–Aug) and boldest explorers (rides ending in another area)
+  as a share of Jun–Aug), boldest explorers (rides ending in another area) last-mile feeders
+  (share of weekday-morning rides from a dock over ¼ mile from rail to one within 650 ft) and gap
+  fillers (transfer-needing rides relative to what the dock layout predicts)
 
 ## How it is counted
 
@@ -35,6 +43,17 @@ head to head. Built from Citi Bike's public [trip histories](https://citibikenyc
 - Rides under 1 minute or over 24 hours, and rides with no recorded end, are excluded.
 - "Fastest" ignores rides under 5 minutes or 1 km and speeds above 32 km/h (clock or GPS glitches).
   "Slowest" is the slowest ride of at least 1 km that finished within 6 hours.
+
+- **Near rail** = straight-line distance from a dock to the closest subway entrance (MTA), PATH
+  station or Hudson-Bergen light rail station (NJ Transit). Only rides with a recorded start and end
+  dock are used for it. Near rail is not the same as transferring; the data can't show that.
+  Without the PATH file, Jersey City and Hoboken are left out of this section.
+- **Gap rides** use the "Daytime Routes" listed for each MTA entrance (weekday daytime service; the
+  three "S" shuttles are told apart by borough). A dock is served by every line with an entrance within
+  400 m (200 and 600 m shown too). Only New York City A-to-B rides of at least 1 km count. The
+  "predicted" gap share is the share among all ordered pairs of docks in the same start borough, end
+  borough and distance band (and, inside Manhattan, the same crosstown / uptown direction), weighted
+  like the actual rides. A one-seat subway ride existing does not mean it was faster than the bike.
 
 ## Run it
 
@@ -68,7 +87,12 @@ prepare.py        shrinks downloaded zips to Parquet, one file at a time
 wrapped.py        loads trip CSVs or Parquet into DuckDB, assigns boroughs, writes JSON + HTML
 wrapped.sql       all the statistics (window functions, arg_max, haversine distance)
 template.html     the page; the script fills in the data
-data/             borough boundaries
+transit.py        loads the rail stations, finds each dock's nearest one, runs transit.sql
+transit.sql       last-mile statistics
+gaps.py           subway lines near each dock, dock-layout baseline, runs gaps.sql
+gaps.sql          gap / one-seat ride counts and the busiest gap trips
+data/             borough boundaries; subway_entrances.csv (MTA), path_stations.geojson,
+                  hblr_stations.geojson (public rail-station locations)
 output/           generated pages
 ```
 

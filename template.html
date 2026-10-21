@@ -187,8 +187,24 @@ section > h3, .block > h3 { font-size: 30px; text-transform: uppercase; margin-b
 .flow-lists li .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .flow-lists li .v { font-family: var(--mono); color: var(--paint); }
 .flow-lists .hdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.flow-lists .colhead { display: grid; grid-template-columns: 14px minmax(0, 1fr) max-content; gap: 6px; align-items: end; font: 500 10.5px var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--dust); border-bottom: 1px solid var(--seam); padding-bottom: 4px; margin-bottom: 6px; }
+.flow-lists .colhead span:last-child { text-align: right; white-space: nowrap; }
 @media (max-width: 720px) { .flow-grid { grid-template-columns: minmax(0, 1fr); } }
 
+/* Last mile */
+#transit { min-width: 0; }
+#tr-dumbbell svg, #tr-tide svg { width: 100%; height: auto; display: block; }
+.tr-feed { margin-top: 22px; }
+.tr-feed small { color: var(--dust); }
+.tr-feed ol { max-width: 640px; }
+.tr-key { display: flex; flex-wrap: wrap; gap: 4px 16px; font: 11px var(--mono); color: var(--dust); margin-top: 6px; }
+.tr-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+/* Following the subway */
+#gaps { min-width: 0; }
+#gp-chart svg, #gp-man svg { width: 100%; height: auto; display: block; }
+.gp-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.gp-feed small { color: var(--dust); font-family: var(--mono); font-size: 11px; }
+@media (max-width: 720px) { .gp-grid { grid-template-columns: minmax(0, 1fr); } }
 /* Station types */
 #types { min-width: 0; }
 .types-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 6px; }
@@ -246,7 +262,7 @@ const DATA = /*__DATA__*/null;
   const fmt = {
     rides: v => int(v), total_km: v => int(mi(v)) + " mi", total_hours: v => int(v) + " h",
     avg_km: v => mi(v).toFixed(2) + " mi", median_kmh: v => mph(v).toFixed(1) + " mph",
-    ebike_share: pct, member_share: pct, night_share: pct, weekend_share: pct, explorer_share: pct,
+    ebike_share: pct, member_share: pct, night_share: pct, weekend_share: pct, explorer_share: pct, feeder_share: pct, shadow_index: v => v.toFixed(2) + "×",
     rides_per_station_day: v => v.toFixed(1) + "/day",
     winter_ratio: v => Math.round(v * 100) + "%",
   };
@@ -262,7 +278,7 @@ const DATA = /*__DATA__*/null;
       </div>
       <div class="hero-stats">
         <div><b class="num">${int(sum("rides"))}</b>rides from ${areas.length} areas</div>
-        <div><b class="num">${int(mi(totalKm))} mi</b>ridden, station to station</div>
+        <div><b class="num">${int(mi(totalKm))} mi</b>covered, station to station</div>
         <div><b class="num">${int(sum("total_hours"))}</b>hours in the saddle</div>
         <div><b class="num">${(totalKm / EARTH_KM).toFixed(totalKm / EARTH_KM < 10 ? 2 : 1)}×</b>around the Earth</div>
       </div>
@@ -280,7 +296,7 @@ const DATA = /*__DATA__*/null;
     </section>
     <section id="flow" hidden>
       <h3>Workin' Nine to Five</h3>
-      <p class="note" id="flow-note">Each dot is a station. <b style="color:var(--paint)">Pink</b> stations lose bikes on net during <span id="flow-when">weekday mornings</span>: more rides leave than arrive, so they need restocking. <b style="color:var(--paint)">Blue</b> stations fill up and need emptying. Bigger dots mean a bigger imbalance, counted in bikes per weekday.</p>
+      <p class="note" id="flow-note">Each dot is a station. <b style="color:var(--paint)">Pink</b> stations lose bikes on net during <span id="flow-when">weekday mornings</span>: more rides leave than arrive, so they need restocking. <b style="color:var(--paint)">Blue</b> stations fill up and need emptying. Bigger dots mean a bigger imbalance. Numbers are the net change in bikes at a station each weekday during that window (arrivals minus departures): <b style="color:var(--paint)">−</b> means it loses bikes, <b style="color:var(--paint)">+</b> means it gains them.</p>
       <div class="flow-toggle" role="group" aria-label="Time of day">
         <button type="button" data-mode="am" aria-pressed="true">Weekday mornings 7–10am</button>
         <button type="button" data-mode="pm" aria-pressed="false">Weekday evenings 4–7pm</button>
@@ -289,8 +305,8 @@ const DATA = /*__DATA__*/null;
       <div class="flow-grid">
         <div class="flow-map"><svg id="flow-svg" role="img" aria-label="Map of stations coloured by net bikes leaving or arriving"></svg></div>
         <div class="flow-lists">
-          <div><h4 id="flow-h-drain"><i style="background:rgb(255,0,191)"></i>Biggest drainers (bikes/day)</h4><ol id="flow-drain"></ol></div>
-          <div><h4 id="flow-h-fill"><i style="background:rgb(70,205,235)"></i>Biggest fillers (bikes/day)</h4><ol id="flow-fill"></ol></div>
+          <div><h4 id="flow-h-drain"><i style="background:rgb(255,0,191)"></i>Biggest drainers</h4><div class="colhead"><span></span><span>Station</span><span id="flow-u-drain">Bikes lost / weekday</span></div><ol id="flow-drain"></ol></div>
+          <div><h4 id="flow-h-fill"><i style="background:rgb(70,205,235)"></i>Biggest fillers</h4><div class="colhead"><span></span><span>Station</span><span id="flow-u-fill">Bikes gained / weekday</span></div><ol id="flow-fill"></ol></div>
         </div>
       </div>
     </section>
@@ -302,14 +318,36 @@ const DATA = /*__DATA__*/null;
         <div><div class="vkey" style="margin:0 0 10px">Mix of station types</div><div id="types-mix"></div></div>
       </div>
     </section>
+    <section id="transit" hidden>
+      <h3>The perks of bipedalism</h3>
+      <p class="note" id="tr-note"></p>
+      <div class="flow-toggle" role="group" aria-label="How close counts as near rail" id="tr-toggle"></div>
+      <div class="types-grid">
+        <div><div class="vkey" style="margin:0 0 10px">Share of docks vs. share of rides, near rail</div><div id="tr-dumbbell"></div>
+          <div class="tr-key"><span><i style="border:2px solid var(--dust)"></i>% of the borough's docks near rail</span><span><i style="background:var(--paint)"></i>% of its rides that start there</span><span>number = rides per dock near rail ÷ per dock farther away</span></div></div>
+        <div><div class="vkey" style="margin:0 0 10px">Biking to the train vs. from it (percentage points)</div><div id="tr-tide"></div>
+          <div class="tr-key"><span>right = heading to rail, left = away from it</span><span>bright bar = weekday mornings 6–10am · faded bar = weekday evenings 4–8pm</span></div></div>
+      </div>
+      <div class="tr-feed flow-lists" id="tr-feed-wrap"><h4><i style="background:var(--lane)"></i>Top feeder docks: weekday-morning rides per day</h4><ol id="tr-feeders"></ol></div>
+    </section>
+    <section id="gaps" hidden>
+      <h3>Mind the Gap</h3>
+      <p class="note" id="gp-note"></p>
+      <div class="flow-toggle" role="group" aria-label="How far riders would walk to the subway" id="gp-toggle"></div>
+      <div class="gp-grid">
+        <div><div class="vkey" style="margin:0 0 10px">Rides a single subway line could also have made</div><div id="gp-chart"></div>
+          <div class="tr-key"><span>bar = actual share</span><span>white tick = share if riders picked destinations at random (same boroughs, same distance)</span><span>number = actual ÷ random</span></div></div>
+        <div><div class="vkey" style="margin:0 0 10px">Manhattan: crosstown vs. uptown/downtown</div><div id="gp-man"></div></div>
+      </div>
+      <div class="tr-feed flow-lists gp-feed" id="gp-pairs-wrap"><h4><i style="background:var(--lane)"></i>Where bikes do fill a gap: busiest trips with no one-seat subway ride (rides/day, both ways)</h4><ol id="gp-pairs"></ol></div>
+    </section>
     <section id="h2h">
       <h3>Battle of the Boroughs</h3>
-      <p class="note">Raw totals would hand every win to the biggest borough, so each category here is per station, per ride, or a share of rides. ${DATA.categories.length} categories in play.</p>
       <div class="cats" id="cats"></div>
     </section>
     <footer>
-      <div><b style="color:var(--paint)">How this was counted.</b> Rides are counted where they started. Distances are straight lines between the start and end stations, because trip data has no route; real rides are longer. Rides under 1 minute or over 24 hours, and rides with no recorded end, are left out (${int(DATA.rides_in_files - DATA.rides_counted)} of ${int(DATA.rides_in_files)}). "Fastest" ignores rides under 5 minutes or 0.6 miles and speeds above 20 mph, which are almost always clock or GPS glitches. "Slowest" is the slowest ride of at least 0.6 miles that finished within 6 hours. A ride "crosses" when it ends in a different borough or city from where it started.</div>
-      <div>Source: <a href="https://citibikenyc.com/system-data" target="_blank" rel="noopener">Citi Bike system data</a> (public trip histories). Independent analysis; not affiliated with Lyft or Citi Bike. Generated ${esc(DATA.generated)}.</div>
+      <div><b style="color:var(--paint)">How this was counted.</b> Rides are counted where they started. Distances are straight lines between the start and end stations, because trip data has no route; real rides are longer. Rides under 1 minute or over 24 hours, and rides with no recorded end, are left out (${int(DATA.rides_in_files - DATA.rides_counted)} of ${int(DATA.rides_in_files)}). "Fastest" ignores rides under 5 minutes or 0.6 miles and speeds above 20 mph, which are almost always clock or GPS glitches. "Slowest" is the slowest ride of at least 0.6 miles that finished within 6 hours. A ride "crosses" when it ends in a different borough or city from where it started.${DATA.transit ? ` "Near rail" means a straight-line distance to the closest subway entrance, PATH station or Hudson-Bergen Light Rail station, using only rides with a recorded start and end dock (${pct(DATA.transit.coverage)} of rides). A "feeder" ride runs from a dock more than a quarter mile from rail to one within 650 feet, on a weekday between 6 and 10am. Being near rail is not the same as transferring: the data shows neither where a rider came from nor where they went next.` : ""}${DATA.gaps ? ` "Following the subway" uses New York City rides of at least 0.6 miles whose start and end docks both have a subway entrance nearby, using the weekday daytime lines listed for each entrance. A ride is "one-seat" when a single line serves both ends. The random baseline is the one-seat share among all pairs of docks in the same start and end borough and distance band. A one-seat subway ride existing does not mean it was faster than the bike.` : ""}</div>
+      <div>Source: <a href="https://citibikenyc.com/system-data" target="_blank" rel="noopener">Citi Bike system data</a>. Independent analysis; not (but wish to be) affiliated with Lyft or Citi Bike.</div>
     </footer>`;
 
   // ---------- one borough's story ----------
@@ -367,6 +405,7 @@ const DATA = /*__DATA__*/null;
 
   // ---------- station imbalance map: which docks drain or fill in weekday rush hours ----------
   function renderFlowMap() {
+    const stock = v => (v > 0 ? "−" : "+") + Math.abs(v).toFixed(1);   // stored as leaving minus arriving; show change in bikes
     const ST = DATA.stations || [];
     if (!ST.length) return;
     const lats = ST.map(s => s.lat), lngs = ST.map(s => s.lng);
@@ -387,28 +426,33 @@ const DATA = /*__DATA__*/null;
       if (mode === "type") {
         const dots = ST.filter(s => s.type).map(s => `<circle cx="${px(s.lng)}" cy="${py(s.lat)}" r="3" style="fill:${tcol(s.type)}" opacity="0.9"><title>${esc(s.name)} (${esc(s.area)}): ${TYPES[s.type].label}</title></circle>`).join("");
         document.getElementById("flow-svg").innerHTML = `<g class="land">${land}</g>${dots}`;
-        const list = arr => arr.map(s => `<li title="Net bikes leaving each weekday morning"><span class="hdot" style="--c:${color(s.area)}"></span><span class="n">${esc(s.name)}</span><span class="v">${s.am >= 0 ? "+" : "−"}${Math.abs(s.am).toFixed(1)}</span></li>`).join("");
-        noteEl.innerHTML = `Each dot is a station, coloured by its type from the clustering below: <b style="color:${tcol("home")}">homes</b> (rides leave in the morning), <b style="color:${tcol("work")}">work &amp; transit hubs</b> (rides leave in the evening) and <b style="color:var(--paint)">all-day &amp; leisure</b>. Numbers in the lists are net bikes leaving each weekday morning.`;
+        const list = arr => arr.map(s => `<li title="Change in bikes each weekday morning, 7–10am"><span class="hdot" style="--c:${color(s.area)}"></span><span class="n">${esc(s.name)}</span><span class="v">${stock(s.am)}</span></li>`).join("");
+        noteEl.innerHTML = `Each dot is a station, coloured by its type from the clustering below: <b style="color:${tcol("home")}">homes</b> (rides leave in the morning), <b style="color:${tcol("work")}">work &amp; transit hubs</b> (rides leave in the evening) and <b style="color:var(--paint)">all-day &amp; leisure</b>. Numbers in the lists are the change in bikes each weekday morning, 7–10am: homes lose bikes (−), hubs gain them (+).`;
         document.getElementById("flow-drain").innerHTML = list(ST.filter(s => s.type === "home").sort((a, b) => b.am - a.am).slice(0, 8));
         document.getElementById("flow-fill").innerHTML = list(ST.filter(s => s.type === "work").sort((a, b) => a.am - b.am).slice(0, 8));
         document.getElementById("flow-h-drain").innerHTML = `<i style="background:${tcol("home")}"></i>Strongest homes`;
         document.getElementById("flow-h-fill").innerHTML = `<i style="background:${tcol("work")}"></i>Strongest work & transit hubs`;
+        document.getElementById("flow-u-drain").textContent = document.getElementById("flow-u-fill").textContent = "Bike change / weekday";
+        document.getElementById("flow-h-drain").innerHTML += " · 7–10am"; document.getElementById("flow-h-fill").innerHTML += " · 7–10am";
         document.querySelectorAll(".flow-toggle button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
         return;
       }
       noteEl.innerHTML = flowNote;
-      document.getElementById("flow-h-drain").innerHTML = '<i style="background:rgb(255,0,191)"></i>Biggest drainers (bikes/day)';
-      document.getElementById("flow-h-fill").innerHTML = '<i style="background:rgb(70,205,235)"></i>Biggest fillers (bikes/day)';
+      const win = mode === "am" ? "weekdays 7–10am" : "weekdays 4–7pm";
+      document.getElementById("flow-h-drain").innerHTML = `<i style="background:rgb(255,0,191)"></i>Biggest drainers · ${win}`;
+      document.getElementById("flow-h-fill").innerHTML = `<i style="background:rgb(70,205,235)"></i>Biggest fillers · ${win}`;
+      document.getElementById("flow-u-drain").textContent = "Bikes lost / weekday";
+      document.getElementById("flow-u-fill").textContent = "Bikes gained / weekday";
       const vals = ST.map(s => Math.abs(s[mode])), vmax = Math.max(...vals, 1);
       const dots = [...ST].sort((a, b) => Math.abs(a[mode]) - Math.abs(b[mode])).map(s => {
         const v = s[mode], t = Math.sqrt(Math.abs(v) / vmax);
-        return `<circle cx="${px(s.lng)}" cy="${py(s.lat)}" r="${(1.4 + 5.2 * t).toFixed(2)}" style="fill:${mix(MID, v >= 0 ? DRAIN : FILL, Math.min(1, t * 1.4))}"><title>${esc(s.name)} (${esc(s.area)}): ${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)} bikes per ${mode === "am" ? "morning" : "evening"} ${v >= 0 ? "leave" : "arrive"} on net</title></circle>`;
+        return `<circle cx="${px(s.lng)}" cy="${py(s.lat)}" r="${(1.4 + 5.2 * t).toFixed(2)}" style="fill:${mix(MID, v >= 0 ? DRAIN : FILL, Math.min(1, t * 1.4))}"><title>${esc(s.name)} (${esc(s.area)}): ${v >= 0 ? "loses" : "gains"} ${Math.abs(v).toFixed(1)} bikes on net each weekday ${mode === "am" ? "morning, 7–10am" : "evening, 4–7pm"}</title></circle>`;
       }).join("");
       document.getElementById("flow-svg").innerHTML = `<g class="land">${land}</g>${dots}`;
-      const list = (arr, sign) => arr.map(s => `<li><span class="hdot" style="--c:${color(s.area)}"></span><span class="n">${esc(s.name)}</span><span class="v">${sign}${Math.abs(s[mode]).toFixed(1)}</span></li>`).join("");
+      const list = arr => arr.map(s => `<li><span class="hdot" style="--c:${color(s.area)}"></span><span class="n">${esc(s.name)}</span><span class="v">${stock(s[mode])}</span></li>`).join("");
       const sorted = [...ST].sort((a, b) => b[mode] - a[mode]);
-      document.getElementById("flow-drain").innerHTML = list(sorted.slice(0, 8), "+");
-      document.getElementById("flow-fill").innerHTML = list(sorted.slice(-8).reverse(), "−");
+      document.getElementById("flow-drain").innerHTML = list(sorted.slice(0, 8));
+      document.getElementById("flow-fill").innerHTML = list(sorted.slice(-8).reverse());
       document.getElementById("flow-when").textContent = label[mode];
       document.querySelectorAll(".flow-toggle button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"));
     };
@@ -450,6 +494,126 @@ const DATA = /*__DATA__*/null;
     document.getElementById("types-legend").innerHTML = legend;
     document.getElementById("types-mix").innerHTML = mix;
     document.getElementById("types").hidden = false;
+  }
+
+  function renderTransit() {
+    const T = DATA.transit;
+    if (!T) return;
+    const rows = areas.filter(a => T.areas[a.name]);
+    if (!rows.length) return;
+    const LABEL = { 100: "330 ft", 200: "650 ft", 400: "¼ mile" };
+    let R = T.near_m;
+    document.getElementById("tr-toggle").innerHTML = T.radii.map(r => `<button type="button" data-r="${r}" aria-pressed="${r === R}">Within ${LABEL[r]}</button>`).join("");
+    // rides per near dock ÷ rides per far dock; left blank when either group has under 5 docks (too noisy)
+    const odds = (s, n, docks) => {
+      const nNear = Math.round(n * docks), nFar = docks - nNear;
+      return (nNear >= 5 && nFar >= 5 && s > 0 && s < 1) ? (s * (1 - n)) / (n * (1 - s)) : null;
+    };
+
+    function draw() {
+      const k = String(R), tot = rows.reduce((s, a) => s + T.areas[a.name].rides, 0);
+      const either = rows.reduce((s, a) => s + (T.areas[a.name].either[k] || 0) * T.areas[a.name].rides, 0) / tot;
+      document.getElementById("tr-note").innerHTML = `<b style="color:var(--paint)">${pct(either)}</b> of rides started or ended within ${LABEL[R]} of rail (subway, PATH or light rail). <b style="color:var(--paint)">Left:</b> each borough's share of docks near rail (ring) against its share of rides starting there (dot). A dot to the right of its ring means docks near rail are busier than the rest. <b style="color:var(--paint)">Right:</b> the commuter pattern, bikes heading to rail in the morning and away from it in the evening. Based on the ${pct(T.coverage)} of rides with a recorded start and end dock.`;
+      document.querySelectorAll("#tr-toggle button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.r === R)));
+
+      // dumbbell: ring = share of docks near rail, dot = share of rides starting near rail
+      const W = 520, rh = 36, L = 92, Rt = 440, top = 6, H = top + rows.length * rh + 26;
+      const x = v => L + v * (Rt - L);
+      let g = [0, 0.25, 0.5, 0.75, 1].map(t => `<line x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${H - 22}" style="stroke:var(--seam)"/>${svgText(x(t), H - 6, Math.round(t * 100) + "%", { anchor: "middle", size: 10.5, font: "var(--mono)" })}`).join("");
+      rows.forEach((a, i) => {
+        const d = T.areas[a.name], n = d.docks_near[k], s = d.start_near[k], y = top + i * rh + rh / 2, c = color(a.name), o = odds(s, n, d.docks);
+        const tip = `${a.name}: ${pct(n)} of docks and ${pct(s)} of ride starts are within ${LABEL[R]} of rail${o ? `; a dock near rail gets ${o.toFixed(1)}x the rides of one farther away` : "; too few docks on one side to compare per-dock rides"}`;
+        g += `<g><title>${esc(tip)}</title>${svgText(L - 10, y + 4, esc(a.name), { anchor: "end", size: 12.5, fill: "var(--paint)" })}
+          <line x1="${x(n)}" x2="${x(s)}" y1="${y}" y2="${y}" style="stroke:${c}" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="${x(n)}" cy="${y}" r="6" style="fill:var(--asphalt);stroke:${c}" stroke-width="2.5"/>
+          <circle cx="${x(s)}" cy="${y}" r="6.5" style="fill:${c}"/>
+          ${svgText(W - 4, y + 4, o ? o.toFixed(1) + "×" : "–", { anchor: "end", size: 13, weight: 600, fill: "var(--paint)", font: "var(--mono)" })}</g>`;
+      });
+      document.getElementById("tr-dumbbell").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of docks and of ride starts within ${LABEL[R]} of rail, by borough. The number at the right is how many times more rides a dock near rail gets than one farther away.">${g}</svg>`;
+    }
+    draw();
+    document.querySelectorAll("#tr-toggle button").forEach(b => b.addEventListener("click", () => { R = +b.dataset.r; draw(); }));
+
+    // commute signature: net share of peak rides heading toward rail (right) or away (left), morning above evening
+    const net = (a, w) => T.areas[a.name][w + "_toward"] == null ? null : T.areas[a.name][w + "_toward"] - (T.areas[a.name][w + "_away"] || 0);
+    const mx = Math.max(0.05, ...rows.flatMap(a => [Math.abs(net(a, "am") || 0), Math.abs(net(a, "pm") || 0)]));
+    const ticks = niceTicks(0, mx, 2), lim = ticks.at(-1);
+    const W2 = 520, rh2 = 46, L2 = 92, mid = 290, half = 170, top2 = 6, H2 = top2 + rows.length * rh2 + 4;
+    const xx = v => mid + v / lim * half;
+    let g2 = `<line x1="${mid}" x2="${mid}" y1="${top2}" y2="${H2 - 4}" style="stroke:var(--dust)"/>`;
+    rows.forEach((a, i) => {
+      const y = top2 + i * rh2, c = color(a.name);
+      g2 += svgText(L2 - 10, y + rh2 / 2 + 4, esc(a.name), { anchor: "end", size: 12.5, fill: "var(--paint)" });
+      [["am", "morning", 7], ["pm", "evening", 25]].forEach(([w, word, dy]) => {
+        const v = net(a, w), d = T.areas[a.name], tw = d[w + "_toward"], aw = d[w + "_away"];
+        if (v == null) {                     // no weekday rides in this window: say so instead of drawing a zero
+          g2 += svgText(mid + 6, y + dy + 4, `no weekday ${word} rides`, { size: 11, font: "var(--mono)" }) + svgText(W2 - 4, y + dy + 4, w === "am" ? "AM" : "PM", { anchor: "end", size: 10, font: "var(--mono)" });
+          return;
+        }
+        const x0 = Math.min(mid, xx(v)), bw = Math.max(1.5, Math.abs(xx(v) - mid));
+        const tip = `${a.name}, weekday ${word}: ${pct(tw || 0)} of rides went toward rail, ${pct(aw || 0)} went away`;
+        g2 += `<g><title>${esc(tip)}</title><rect x="${x0}" y="${y + dy - 6}" width="${bw}" height="13" rx="2" style="fill:${c}" opacity="${w === "am" ? 1 : 0.55}"/>
+          ${svgText(v >= 0 ? xx(v) + 5 : xx(v) - 5, y + dy + 4, (v >= 0 ? "+" : "−") + Math.abs(v * 100).toFixed(0), { anchor: v >= 0 ? "start" : "end", size: 11, font: "var(--mono)", fill: "var(--paint)" })}
+          ${svgText(W2 - 4, y + dy + 4, w === "am" ? "AM" : "PM", { anchor: "end", size: 10, font: "var(--mono)" })}</g>`;
+      });
+    });
+    document.getElementById("tr-tide").innerHTML = `<svg viewBox="0 0 ${W2} ${H2}" role="img" aria-label="For each borough, weekday morning and evening: the share of rides heading toward rail minus the share heading away, in percentage points">${g2}</svg>`;
+
+    const F = T.feeders || [];
+    document.getElementById("tr-feeders").innerHTML = F.map(f => `<li title="${esc(f.name)} (${esc(f.area)}), ${int(f.m * 3.281)} ft from the nearest rail entrance"><span class="hdot" style="--c:${color(f.area)}"></span><span class="n">${esc(f.name)} <small>→ ${esc(f.to || "")}</small></span><span class="v">${f.per_day.toFixed(1)}/day</span></li>`).join("");
+    document.getElementById("tr-feed-wrap").hidden = !F.length;
+    document.getElementById("transit").hidden = false;
+  }
+
+  function renderGaps() {
+    const G = DATA.gaps;
+    if (!G) return;
+    const rows = areas.filter(a => G.areas[a.name]);
+    if (!rows.length) return;
+    const LABEL = { 200: "650 ft", 400: "¼ mile", 600: "⅜ mile" };
+    let R = G.r;
+    document.getElementById("gp-toggle").innerHTML = G.radii.map(r => `<button type="button" data-r="${r}" aria-pressed="${r === R}">Subway within ${LABEL[r] || r + " m"}</button>`).join("");
+
+    // bullet rows: bar = actual gap share, tick = predicted
+    function bullets(list, W = 520) {
+      const rh = 34, L = 104, Rt = W - 80, top = 6, H = top + list.length * rh + 24, x = v => L + v * (Rt - L);
+      let g = [0, 0.25, 0.5, 0.75, 1].map(t => `<line x1="${x(t)}" x2="${x(t)}" y1="${top}" y2="${H - 20}" style="stroke:var(--seam)"/>${svgText(x(t), H - 5, Math.round(t * 100) + "%", { anchor: "middle", size: 10.5, font: "var(--mono)" })}`).join("");
+      list.forEach(([label, c, d], i) => {
+        const y = top + i * rh + rh / 2;
+        if (!d) { g += svgText(L - 10, y + 4, esc(label), { anchor: "end", size: 12.5, fill: "var(--paint)" }) + svgText(L + 6, y + 4, "no rides", { size: 11, font: "var(--mono)" }); return; }
+        const one = 1 - d.gap, exp = d.expected_gap == null ? null : 1 - d.expected_gap, ratio = exp ? one / exp : null;
+        const tip = `${label}: a single subway line serves both ends of ${pct(one)} of ${int(d.rides)} rail-served rides; random destinations would give ${exp == null ? "–" : pct(exp)}`;
+        g += `<g><title>${esc(tip)}</title>${svgText(L - 10, y + 4, esc(label), { anchor: "end", size: 12.5, fill: "var(--paint)" })}
+          <rect x="${L}" y="${y - 7}" width="${x(1) - L}" height="14" rx="3" style="fill:var(--curb)"/>
+          <rect x="${L}" y="${y - 7}" width="${Math.max(1, x(one) - L)}" height="14" rx="3" style="fill:${c}"/>
+          ${exp == null ? "" : `<line x1="${x(exp)}" x2="${x(exp)}" y1="${y - 11}" y2="${y + 11}" style="stroke:var(--paint)" stroke-width="2.5"/>`}
+          ${svgText(W - 4, y + 4, ratio == null ? "–" : ratio.toFixed(2) + "×", { anchor: "end", size: 13, weight: 600, fill: "var(--paint)", font: "var(--mono)" })}</g>`;
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of rail-served rides a single subway line could also have made, actual against a random-destination baseline">${g}</svg>`;
+    }
+    function draw() {
+      const k = String(R), o = G.overall[k];
+      document.querySelectorAll("#gp-toggle button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.r === R)));
+      document.getElementById("gp-note").innerHTML = o ? (() => {
+        const one = 1 - o.gap, exp = 1 - o.expected_gap, r = one / exp;
+        const verdict = r >= 1.02 ? "more often than chance: Citi Bike trips run along the subway's corridors more than they fill its gaps"
+          : r <= 0.98 ? "less often than chance: riders lean toward the trips the subway makes awkward" : "about as often as chance";
+        return `Take every New York City ride of at least 0.6 miles that starts and ends within ${LABEL[R]} of a subway entrance (${pct(o.served_share)} of rides that long). For <b style="color:var(--paint)">${pct(one)}</b> of them, a single subway line serves both ends. If riders picked destinations at random within the same boroughs and distance, that share would be ${pct(exp)}. So bikes follow one-seat subway routes ${verdict}. Far-apart docks rarely share a line, which is why each borough is compared with its own random baseline.`;
+      })() : "";
+      document.getElementById("gp-chart").innerHTML = bullets(rows.map(a => [a.name, color(a.name), G.areas[a.name][k]]));
+      const M = G.manhattan;
+      document.getElementById("gp-man").innerHTML = M && (M.crosstown[k] || M.updown[k])
+        ? bullets([["Crosstown", color("Manhattan"), M.crosstown[k]], ["Up/downtown", color("Manhattan"), M.updown[k]]], 440)
+          + `<div class="tr-key"><span>Crosstown rides rarely have a one-seat subway option: most lines run north–south.</span></div>`
+        : `<div class="vkey">Not enough Manhattan rides.</div>`;
+    }
+    draw();
+    document.querySelectorAll("#gp-toggle button").forEach(b => b.addEventListener("click", () => { R = +b.dataset.r; draw(); }));
+
+    const P = G.pairs || [];
+    document.getElementById("gp-pairs").innerHTML = P.map(p => `<li title="${esc(p.a)} (${esc(p.area_a)}) ↔ ${esc(p.b)} (${esc(p.area_b)}), ${mi(p.km).toFixed(1)} mi apart. Lines near each end: ${esc(p.lines_a.join(" "))} | ${esc(p.lines_b.join(" "))}"><span class="hdot" style="--c:${color(p.area_a)}"></span><span class="n">${esc(p.a)} ↔ ${esc(p.b)} <small>${esc(p.lines_a.slice(0, 4).join(" "))}${p.lines_a.length > 4 ? "…" : ""} → ${esc(p.lines_b.slice(0, 4).join(" "))}${p.lines_b.length > 4 ? "…" : ""}</small></span><span class="v">${p.per_day.toFixed(1)}/day</span></li>`).join("");
+    document.getElementById("gp-pairs-wrap").hidden = !P.length;
+    document.getElementById("gaps").hidden = false;
   }
 
   function renderCrossings() {
@@ -649,6 +813,21 @@ const DATA = /*__DATA__*/null;
     });
     return `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(c.label)}">${g}</svg><div class="vkey">Dashed line: ${baseLabel}. Numbers on the right: share, then points above or below it.</div>`;
   }
+  function ratioViz(c, baseLabel, rightLabel) {      // lollipops out from 1.0 (= as predicted)
+    const vals = c.ranking.map(r => r.value), lo = Math.min(1, ...vals) - 0.05, hi = Math.max(1, ...vals) + 0.05;
+    const L = 96, R = 260, W = 320, rowH = 30, top = 26, H = top + c.ranking.length * rowH + 6;
+    const x = v => L + (v - lo) / (hi - lo) * (R - L), xb = x(1);
+    let g = `<line x1="${xb}" x2="${xb}" y1="${top - 6}" y2="${H - 4}" style="stroke:var(--paint)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>`
+      + svgText(xb, 12, "chance (1.00×)", { anchor: "middle", size: 10.5, font: "var(--mono)" });
+    c.ranking.forEach((r, i) => {
+      const y = top + i * rowH + rowH / 2, col = color(r.name), top1 = i === 0;
+      g += svgText(0, y + 4, esc(r.name), { size: 12.5, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)" })
+        + `<line x1="${xb}" x2="${x(r.value)}" y1="${y}" y2="${y}" style="stroke:${col}" stroke-width="3" stroke-linecap="round"/>`
+        + `<circle cx="${x(r.value)}" cy="${y}" r="5.5" style="fill:${col}"/>`
+        + svgText(W, y + 4, r.value.toFixed(2) + "×", { anchor: "end", size: 11.5, weight: top1 ? 600 : 400, fill: top1 ? "var(--paint)" : "var(--dust)", font: "var(--mono)" });
+    });
+    return `<svg class="viz-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(c.label)}">${g}</svg><div class="vkey">Dashed line: ${baseLabel}. Right of it: ${rightLabel}.</div>`;
+  }
   function thermoViz(c) {                // thermometers filled to the winter/summer ratio
     const max = Math.max(...c.ranking.map(r => r.value));
     const scaleMax = Math.ceil(max * 10) / 10;   // round up to the next 10%
@@ -665,6 +844,8 @@ const DATA = /*__DATA__*/null;
     member_share: c => ringViz(c, ""),
     night_share: c => ringViz(c, "clock"),
     explorer_share: c => ringViz(c, "arrow"),
+    feeder_share: c => ringViz(c, ""),
+    shadow_index: c => ratioViz(c, "random destinations at the same distance", "more trips along a single subway line than chance"),
     weekend_share: c => baselineViz(c, 2 / 7, "an even week, where 2 of 7 days are weekend"),
     winter_ratio: c => thermoViz(c),
   };
@@ -690,6 +871,8 @@ const DATA = /*__DATA__*/null;
   renderCrossings();
   renderFlowMap();
   renderTypes();
+  renderTransit();
+  renderGaps();
   const fromHash = areas.find(a => "#" + slug(a.name) === location.hash);
   renderStory((fromHash || areas[0]).name);
 })();

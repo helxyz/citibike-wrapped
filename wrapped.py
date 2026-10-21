@@ -16,6 +16,9 @@ import duckdb
 import pandas as pd
 from shapely.geometry import Point, shape
 
+import gaps
+import transit
+
 ROOT = Path(__file__).resolve().parent
 BOROUGHS = ROOT / "data" / "borough_boundaries.geojson"
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -121,7 +124,8 @@ def main() -> None:
     else:
         con.execute(f"""CREATE VIEW trips AS SELECT * FROM read_csv([{paths}], union_by_name = true,
             types = {{'start_station_id': 'VARCHAR', 'end_station_id': 'VARCHAR'}})""")
-    con.register("station_area_df", station_areas(con))
+    sa = station_areas(con)
+    con.register("station_area_df", sa)
     con.execute("CREATE TABLE station_area AS SELECT * FROM station_area_df")
     con.execute(f"SET VARIABLE yr = {a.year}")
     con.execute((ROOT / "wrapped.sql").read_text())
@@ -129,6 +133,8 @@ def main() -> None:
     raw = con.execute(f"SELECT COUNT(*) FROM trips WHERE year(started_at) = {a.year}").fetchone()[0]
     tot = con.execute("SELECT * FROM w_totals").df().set_index("area")
     tot = tot[(tot.index != "Other") & (tot.rides >= 100)].sort_values("rides", ascending=False)
+    tr = transit.run(con, sa, set(tot.index))        # None when the transit files aren't in data/
+    gp = gaps.run(con, sa, set(tot.index))           # None without subway line information
     speed = con.execute("SELECT * FROM w_speed").df().set_index("area")
     fair = con.execute("SELECT * FROM w_fair").df().set_index("area")
     flows = con.execute("SELECT * FROM w_flows ORDER BY rides DESC").df()
@@ -164,6 +170,8 @@ def main() -> None:
             "weekend_share": round(float(fair.weekend_share[name]), 4),
             "winter_ratio": round(float(fair.winter_ratio[name]), 4),
             "explorer_share": round(float(fair.explorer_share[name]), 4),
+            "feeder_share": (tr or {}).get("areas", {}).get(name, {}).get("am_toward"),
+            "shadow_index": gaps.shadow_for(gp, name),
             # 7 x 24 grid: rows Mon..Sun, columns 0..23h
             "rhythm": [[int(rhythm[(rhythm.area == name) & (rhythm.dow == dw) & (rhythm.hr == h)].rides.sum())
                         for h in range(24)] for dw in range(1, 8)],
@@ -187,16 +195,20 @@ def main() -> None:
             ("night_share", "Night owls", "Share of rides starting 10pm-4am"),
             ("weekend_share", "Weekend warriors", "Share of rides on Saturday or Sunday"),
             ("winter_ratio", "Winter warriors", "Dec-Feb rides as a share of Jun-Aug rides"),
-            ("explorer_share", "Boldest explorers", "Share of rides ending in another borough")]
+            ("explorer_share", "Boldest explorers", "Share of rides ending in another borough"),
+            ("feeder_share", "Last-mile feeders", "Share of weekday-morning rides from a dock 1/4 mile or more from rail to one within 650 ft"),
+            ("shadow_index", "Subway shadow", "Rides a single subway line could also have made, vs. random destinations")]
     categories = []
     import math
     for key, label, desc in cats:
-        vals = [ar[key] for ar in areas]
-        if any(v is None or (isinstance(v, float) and math.isnan(v)) for v in vals):
+        missing = lambda v: v is None or (isinstance(v, float) and math.isnan(v))
+        have = [ar for ar in areas if not missing(ar[key])]
+        if len(have) < 2 or (key not in ("feeder_share", "shadow_index") and len(have) < len(areas)):
             for ar in areas:          # e.g. no summer months in the data: skip the category
                 ar[key] = None
             continue
-        ranked = sorted(areas, key=lambda x: x[key], reverse=True)
+        # last-mile feeders and gap fillers may leave out an area (e.g. Jersey City/Hoboken without the PATH file)
+        ranked = sorted(have, key=lambda x: x[key], reverse=True)
         categories.append({"key": key, "label": label, "desc": desc, "winner": ranked[0]["name"],
                            "ranking": [{"name": r["name"], "value": r[key]} for r in ranked]})
     wins = {ar["name"]: sum(c["winner"] == ar["name"] for c in categories) for ar in areas}
@@ -219,7 +231,7 @@ def main() -> None:
         if st_["type"]:
             type_counts.setdefault(st_["area"], {}).setdefault(st_["type"], 0)
             type_counts[st_["area"]][st_["type"]] += 1
-    out = {"year": a.year, "flows": flow_list, "station_types": {"profiles": sprofiles, "by_area": type_counts}, "stations": stations_out, "outlines": outlines, "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+    out = {"year": a.year, "flows": flow_list, "station_types": {"profiles": sprofiles, "by_area": type_counts}, "stations": stations_out, "transit": tr, "gaps": gp, "outlines": outlines, "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
            "files": len(files), "rides_in_files": int(raw),
            "rides_counted": int(tot.rides.sum()), "areas": areas, "categories": categories, "wins": wins}
     od = Path(a.out); od.mkdir(parents=True, exist_ok=True)
