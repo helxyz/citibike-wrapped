@@ -140,6 +140,9 @@ GROUP BY area;
 CREATE OR REPLACE TABLE w_records_wide AS
 WITH r AS (
     SELECT area, km, kmh, minutes,
+           -- same corner written two ways ("Broadway & W 37 St" vs "W 37 St & Broadway"): a re-dock, not a ride
+           list_sort(string_split(lower(trim(start_station_name)), ' & '))
+             = list_sort(string_split(lower(trim(end_station_name)), ' & ')) AS same_corner,
            {'start_station_name': start_station_name, 'end_station_name': end_station_name,
             'started_at': started_at, 'minutes': minutes, 'km': km, 'kmh': kmh,
             'rideable_type': rideable_type} AS ride
@@ -148,7 +151,7 @@ WITH r AS (
 )
 SELECT area,
        arg_max(ride, km)                                                    AS farthest,
-       arg_min(ride, km)                                                    AS shortest,
+       arg_min(ride, km) FILTER (NOT coalesce(same_corner, false))          AS shortest,
        -- fastest: straight-line average speed, ignoring clock/GPS glitches
        arg_max(ride, kmh) FILTER (minutes >= 5 AND km >= 1 AND kmh <= 32)   AS fastest,
        -- slowest: a real ride of 1 km+ that took the scenic route (under 6 hours)

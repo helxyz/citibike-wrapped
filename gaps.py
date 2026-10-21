@@ -26,6 +26,10 @@ HEADLINE_R = 400                     # about a five-minute walk
 NYC = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"]
 BANDS = {1: "1-2 km", 2: "2-3 km", 3: "3-5 km", 4: "5+ km"}
 SHUTTLES = {"M": "S 42 St", "B": "S Franklin Av", "Q": "S Rockaway Park"}   # three different shuttles share "S"
+# Central Park, corner to corner (lat, lng): 59 St & 5 Av, 59 St & CPW, 110 St & CPW, 110 St & 5 Av.
+# A dock within PARK_EDGE_KM of it is a "park edge" dock; trips between two of them are park loops.
+PARKS = {"Central Park": [(40.7644, -73.9730), (40.7681, -73.9816), (40.8005, -73.9582), (40.7969, -73.9496)]}
+PARK_EDGE_KM = 0.1
 THETA = np.radians(29)               # Manhattan's street grid is rotated ~29 degrees from true north
 
 
@@ -77,6 +81,17 @@ def station_lines(docks: pd.DataFrame, ent: pd.DataFrame):
     u, v = grid_uv(la, lo)
     t = pd.DataFrame({"station_id": docks.station_id.to_numpy(), "area": docks.area.to_numpy(), **out, "u": u, "v": v})
     return t, names
+
+
+def park_edge_docks(docks: pd.DataFrame) -> set:
+    """Station ids of docks on the edge of a park listed in PARKS."""
+    from shapely.geometry import Point, Polygon
+    shapes = []
+    for corners in PARKS.values():
+        u, v = grid_uv([c[0] for c in corners], [c[1] for c in corners])
+        shapes.append(Polygon(list(zip(u, v))).buffer(PARK_EDGE_KM))
+    u, v = grid_uv(docks.lat, docks.lng)
+    return {sid for sid, x, y in zip(docks.station_id, u, v) if any(s.contains(Point(x, y)) for s in shapes)}
 
 
 def baseline(t: pd.DataFrame, areas: list) -> pd.DataFrame:
@@ -178,7 +193,9 @@ def run(con, station_area: pd.DataFrame, keep: set, data_dir: Path | None = None
 
     n_days = con.execute("SELECT COUNT(DISTINCT CAST(started_at AS DATE)) FROM rides").fetchone()[0]
     pairs = con.execute("SELECT * FROM gp_pairs").df()
-    pairs = pairs[pairs.area1.isin(areas) & pairs.area2.isin(areas)].head(10)
+    pairs = pairs[pairs.area1.isin(areas) & pairs.area2.isin(areas)]
+    edge = park_edge_docks(docks)              # loops around Central Park are leisure, not transport gaps
+    pairs = pairs[~(pairs.p1.isin(edge) & pairs.p2.isin(edge))].head(10)
     lines_of = dict(zip(t.station_id, t[f"m{HEADLINE_R}"]))
     def decode(mask):
         return [n for i, n in enumerate(names) if int(mask) >> i & 1]

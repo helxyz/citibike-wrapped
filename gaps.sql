@@ -38,4 +38,4 @@ FROM gp_rides
 WHERE a400 <> 0 AND b400 <> 0 AND (a400 & b400) = 0
 GROUP BY 1, 2
 ORDER BY rides DESC, p1, p2
-LIMIT 50;
+LIMIT 200;
